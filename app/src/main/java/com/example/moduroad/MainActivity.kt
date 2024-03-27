@@ -34,9 +34,9 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1000 && grantResults.isNotEmpty()) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                // 권한이 허용 되었을 때의 처리
+                // 권한이 허용 되었을 때 처리
             } else {
-                // 권한이 거부 되었을 때의 처리
+                // 권한이 거부 되었을 때 처리
             }
         }
     }
