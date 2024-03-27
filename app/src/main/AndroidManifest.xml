@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -27,5 +28,6 @@
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="sevyscnelo"/>
+        <!-- 클라이언트 시크릿은 AndroidManifest.xml에 포함시키지 않습니다. -->
     </application>
 </manifest>
