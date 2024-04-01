@@ -19,10 +19,13 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.CameraUpdate
+import com.naver.maps.geometry.LatLngBounds
+
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var naverMap: NaverMap
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +57,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
+        // 최소 줌 레벨 설정
+        naverMap.minZoom = 10.0 // 줌 아웃 제한 (더 큰 숫자로 설정하면 더 많이 줌 아웃됩니다)
+
+        // 최대 줌 레벨 설정
+        naverMap.maxZoom = 18.0 // 줌 인 제한 (더 작은 숫자로 설정하면 더 적게 줌 인됩니다)
+
+
+        // 인천 지역을 위한 LatLngBounds 설정
+        val inchonBounds = LatLngBounds(
+            LatLng(37.2830, 126.3920), // 남서쪽 좌표
+            LatLng(37.5580, 126.7780)  // 북동쪽 좌표
+        )
+
+        // 네이버 지도의 카메라 이동 범위를 인천 지역으로 제한
+        naverMap.extent = inchonBounds
+
+        // 인천 중심부의 좌표로 지도 초기 위치 설정
+        val initialPosition = LatLng(37.4563, 126.7052)
+        naverMap.moveCamera(CameraUpdate.scrollTo(initialPosition))
+
+        // 현재 위치로 지도 이동
         getLastLocation()
     }
+
 
     private fun getLastLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
