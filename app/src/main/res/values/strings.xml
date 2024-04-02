@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">moduroad</string>
+    <string name="current_location">현재 위치</string>
+    <string name="find_road">길찾기</string>
 </resources>
