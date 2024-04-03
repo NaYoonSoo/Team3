@@ -10,6 +10,8 @@ import android.content.Intent
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.moduroad.model.PlacesViewModel
 import com.google.android.gms.location.*
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.MapFragment
@@ -25,10 +27,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationRequest: LocationRequest
     private lateinit var naverMap: NaverMap
     private var currentMarker: Marker? = null
+    private lateinit var viewModel: PlacesViewModel
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        viewModel = ViewModelProvider(this).get(PlacesViewModel::class.java)
+        viewModel.searchPlaces("sevyscnelo", "Paa6tD4f3y7m0bCHn30LvrndWF7Gmv6CJ1EZKcHY")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -172,4 +180,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
+
+
 }
