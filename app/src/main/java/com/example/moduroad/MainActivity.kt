@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.widget.ImageButton // ImageButton import 추가
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
@@ -39,6 +41,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<ImageButton>(R.id.button_current_location).setOnClickListener {
             updateCurrentLocationAndMoveCamera()
         }
+
+        findViewById<AppCompatButton>(R.id.search_road_button).setOnClickListener {
+            val intent = Intent(this, RouteSearchActivity::class.java)
+            startActivity(intent)
+        }
+
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment?
             ?: MapFragment.newInstance().also {
