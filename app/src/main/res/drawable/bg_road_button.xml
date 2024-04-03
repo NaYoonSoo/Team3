@@ -1,5 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#81BEF7"/> <!-- 흐린 파란색 배경 -->
-    <corners android:radius="4dp"/> <!-- 살짝 둥근 모서리 -->
-</shape>
+<!-- res/drawable/bg_road_button.xml -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight"> <!-- 리플 효과의 색상 -->
+    <item>
+        <shape>
+            <solid android:color="#81BEF7"/> <!-- 기존의 흐린 파란색 배경 -->
+            <corners android:radius="4dp"/> <!-- 살짝 둥근 모서리 -->
+        </shape>
+    </item>
+</ripple>

@@ -6,8 +6,12 @@ import android.os.Bundle
 import android.widget.ImageButton // ImageButton import 추가
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.moduroad.model.PlacesViewModel
 import com.google.android.gms.location.*
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.MapFragment
@@ -23,10 +27,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationRequest: LocationRequest
     private lateinit var naverMap: NaverMap
     private var currentMarker: Marker? = null
+    private lateinit var viewModel: PlacesViewModel
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        viewModel = ViewModelProvider(this).get(PlacesViewModel::class.java)
+        viewModel.searchPlaces("sevyscnelo", "Paa6tD4f3y7m0bCHn30LvrndWF7Gmv6CJ1EZKcHY")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -39,6 +49,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<ImageButton>(R.id.button_current_location).setOnClickListener {
             updateCurrentLocationAndMoveCamera()
         }
+
+        findViewById<AppCompatButton>(R.id.search_road_button).setOnClickListener {
+            val intent = Intent(this, RouteSearchActivity::class.java)
+            startActivity(intent)
+        }
+
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment?
             ?: MapFragment.newInstance().also {
@@ -164,4 +180,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
+
+
 }
