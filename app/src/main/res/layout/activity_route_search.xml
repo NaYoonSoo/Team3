@@ -7,81 +7,77 @@
     android:layout_height="match_parent"
     tools:context=".RouteSearchActivity">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.24" />
+
     <FrameLayout
-        android:id="@+id/backgroundFrame"
+        android:id="@+id/topFrameLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/input_background"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.25"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/input_background">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:weightSum="3">
 
             <RadioGroup
-                android:id="@+id/routeTypeGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/transportOptions"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp">
-
+                android:gravity="center">
                 <RadioButton
-                    android:id="@+id/normalRoute"
+                    android:id="@+id/radio_normal_route"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:drawableLeft="@drawable/ic_normal_route"
                     android:button="@null"
-                    android:background="@drawable/radio_button_selector"
-                    android:layout_marginEnd="8dp" />
-
+                    android:background="@drawable/radio_button_selector_normal"
+                    android:layout_marginEnd="8dp"
+                    android:drawablePadding="-5dp"/>
                 <RadioButton
-                    android:id="@+id/specialRoute"
+                    android:id="@+id/radio_special_route"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:drawableRight="@drawable/ic_special_route"
                     android:button="@null"
-                    android:background="@drawable/radio_button_selector"
-                    android:layout_marginStart="8dp" />
+                    android:background="@drawable/radio_button_selector_special"
+                    android:layout_marginStart="8dp"
+                    android:drawablePadding="-5dp"/>
             </RadioGroup>
 
             <EditText
-                android:id="@+id/startPoint"
+                android:id="@+id/startLocation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edittext_background"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_divider"
+                android:padding="8dp"
                 android:hint="출발지"
-                android:inputType="text"
-                android:padding="12dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"/>
 
             <EditText
-                android:id="@+id/endPoint"
+                android:id="@+id/endLocation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edittext_background"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_divider"
+                android:padding="8dp"
                 android:hint="도착지"
-                android:inputType="text"
-                android:padding="12dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginTop="8dp"/>
 
         </LinearLayout>
 
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
