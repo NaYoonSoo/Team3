@@ -1,30 +1,35 @@
 package com.example.moduroad
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.ImageButton // ImageButton import 추가
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import android.content.Intent
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.*
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.CameraUpdate
 import com.naver.maps.geometry.LatLngBounds
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+import com.example.moduroad.model.Place
 import com.example.moduroad.model.PlacesResponse
 import com.example.moduroad.network.RetrofitClient
-
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -32,6 +37,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationRequest: LocationRequest
     private lateinit var naverMap: NaverMap
     private var currentMarker: Marker? = null
+    private lateinit var placeAdapter: PlaceAdapter
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,12 +49,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1000)
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1000
+            )
         }
 
-        // ImageButton으로 변경
         findViewById<ImageButton>(R.id.button_current_location).setOnClickListener {
             updateCurrentLocationAndMoveCamera()
         }
@@ -57,6 +77,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivity(intent)
         }
 
+        recyclerView = findViewById(R.id.recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment?
             ?: MapFragment.newInstance().also {
@@ -70,13 +92,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
-        // 지도 설정 (줌 레벨, 지도 영역 제한 등)
         setupMap()
-
-        // 현재 위치 업데이트 시작
         startLocationUpdates()
 
-        // 앱 시작시 현재 위치로 화면 이동
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -85,13 +103,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return
         }
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
@@ -116,7 +127,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 for (location in locationResult.locations) {
-                    // 새 위치로 마커 위치 업데이트
                     val newLatLng = LatLng(location.latitude, location.longitude)
                     if (currentMarker == null) {
                         currentMarker = Marker().apply {
@@ -126,21 +136,33 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     } else {
                         currentMarker!!.position = newLatLng
                     }
-                    // 위치 갱신만 수행하고 화면 이동은 하지 않도록 수정
                 }
             }
         }
     }
 
     private fun setupLocationRequest() {
-        locationRequest = LocationRequest.Builder(5000L).build() // 5초에 한번 다시 위치 찾기
+        locationRequest = LocationRequest.Builder(5000L).build()
     }
 
     private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // 권한이 없으면 사용자에게 요청
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1000)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1000
+            )
             return
         }
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
@@ -156,15 +178,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateCurrentLocationAndMoveCamera() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // 권한 체크 후 요청
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1000)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1000
+            )
             return
         }
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            // null 체크
             if (location != null) {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
                 naverMap.moveCamera(CameraUpdate.scrollTo(currentLatLng))
@@ -182,7 +216,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1000 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startLocationUpdates()
@@ -200,29 +238,72 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    // Retrofit을 통한 네이버 주변시설 검색
     private fun searchPlaces(query: String) {
         val call = RetrofitClient.instance.searchPlaces(
-            clientId = "sevyscnelo", // 여기에 네이버 클라이언트 ID 입력
-            clientSecret = "Paa6tD4f3y7m0bCHn30LvrndWF7Gmv6CJ1EZKcHY", // 여기에 네이버 클라이언트 Secret 입력
+            clientId = "bP2f2VGdQIzl8E6KLXp4",
+            clientSecret = "LNpJPXF0XJ",
             query = query
         )
 
         call.enqueue(object : Callback<PlacesResponse> {
-            override fun onResponse(call: Call<PlacesResponse>, response: Response<PlacesResponse>) {
+            override fun onResponse(
+                call: Call<PlacesResponse>,
+                response: Response<PlacesResponse>
+            ) {
                 if (response.isSuccessful) {
                     val placesResponse = response.body()
-                    placesResponse?.items?.forEach { place ->
-                        println(place.title) // 검색된 장소의 이름을 출력
+                    placesResponse?.items?.let { places ->
+                        // 검색 결과가 있는 경우 RecyclerView에 표시
+                        showPlaces(places)
                     }
                 } else {
-                    println("Error: ${response.code()}")
+                    // 서버에서 오류 응답을 받은 경우
+                    Toast.makeText(
+                        this@MainActivity,
+                        "서버 오류: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<PlacesResponse>, t: Throwable) {
-                println("Error: ${t.message}")
+                // 네트워크 오류 등으로 검색에 실패한 경우
+                Toast.makeText(this@MainActivity, "네트워크 오류: ${t.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }
+    private fun showPlaces(places: List<Place>) {
+        // RecyclerView 어댑터 설정
+        placeAdapter = PlaceAdapter(places)
+        recyclerView.adapter = placeAdapter
+    }
+
+    class PlaceAdapter(private val places: List<Place>) :
+        RecyclerView.Adapter<PlaceAdapter.PlaceViewHolder>() {
+
+        class PlaceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val placeNameTextView: TextView = itemView.findViewById(R.id.place_name_text_view)
+            // 다른 뷰도 필요한 경우 추가
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.item_place, parent, false)
+            return PlaceViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: PlaceViewHolder, position: Int) {
+            val place = places[position]
+            holder.placeNameTextView.text = place.name
+            // 다른 데이터도 필요한 경우 추가
+        }
+
+        override fun getItemCount(): Int {
+            return places.size
+        }
+    }
+
 }
+
+
