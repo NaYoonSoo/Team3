@@ -10,8 +10,6 @@ import android.content.Intent
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
-import com.example.moduroad.model.PlacesViewModel
 import com.google.android.gms.location.*
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.MapFragment
@@ -20,6 +18,13 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.geometry.LatLngBounds
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
+import com.example.moduroad.model.PlacesResponse
+import com.example.moduroad.network.RetrofitClient
+
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -27,16 +32,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationRequest: LocationRequest
     private lateinit var naverMap: NaverMap
     private var currentMarker: Marker? = null
-    private lateinit var viewModel: PlacesViewModel
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProvider(this).get(PlacesViewModel::class.java)
-        viewModel.searchPlaces("sevyscnelo", "Paa6tD4f3y7m0bCHn30LvrndWF7Gmv6CJ1EZKcHY")
+        // Retrofit을 통한 네이버 주변시설 검색
+        searchPlaces("카페")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -75,6 +77,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         startLocationUpdates()
 
         // 앱 시작시 현재 위치로 화면 이동
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
@@ -181,5 +200,29 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
+    // Retrofit을 통한 네이버 주변시설 검색
+    private fun searchPlaces(query: String) {
+        val call = RetrofitClient.instance.searchPlaces(
+            clientId = "sevyscnelo", // 여기에 네이버 클라이언트 ID 입력
+            clientSecret = "Paa6tD4f3y7m0bCHn30LvrndWF7Gmv6CJ1EZKcHY", // 여기에 네이버 클라이언트 Secret 입력
+            query = query
+        )
 
+        call.enqueue(object : Callback<PlacesResponse> {
+            override fun onResponse(call: Call<PlacesResponse>, response: Response<PlacesResponse>) {
+                if (response.isSuccessful) {
+                    val placesResponse = response.body()
+                    placesResponse?.items?.forEach { place ->
+                        println(place.title) // 검색된 장소의 이름을 출력
+                    }
+                } else {
+                    println("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<PlacesResponse>, t: Throwable) {
+                println("Error: ${t.message}")
+            }
+        })
+    }
 }
