@@ -38,10 +38,17 @@ class LocationInputActivity : AppCompatActivity() {
         }
 
         val currentLocationButton = findViewById<Button>(R.id.button_current_location)
+        val selectFromMapButton = findViewById<Button>(R.id.button_select_from_map) // "지도에서 선택" 버튼 추가
         searchInput = findViewById<EditText>(R.id.search_input)
 
         currentLocationButton.setOnClickListener {
             getCurrentLocation()
+        }
+
+        selectFromMapButton.setOnClickListener {
+            // "지도에서 선택" 버튼 클릭 시 MapPickerActivity로 이동
+            val intent = Intent(this, MapPickerActivity::class.java)
+            startActivity(intent)
         }
 
         searchInput.setOnEditorActionListener { v, actionId, event ->
@@ -66,8 +73,7 @@ class LocationInputActivity : AppCompatActivity() {
             if (location != null) {
                 val result = "${location.latitude}, ${location.longitude}"
                 searchInput.setText(result) // 현재 위치를 EditText에 설정합니다.
-                returnSelectedLocation(result) // 현재 위치를 RouteSearchActivity로 반환합니다.
-                // 주석 처리된 부분은 실제 앱의 동작에 따라 필요할 경우 사용하세요.
+                returnSelectedLocation(result) // 현재 위치를 반환합니다.
             } else {
                 Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
             }
