@@ -7,10 +7,10 @@
     <TextView
         android:id="@+id/place_name_text_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:layout_height="3106dp"
+        android:padding="8dp"
         android:textColor="#000000"
-        android:padding="8dp"/>
+        android:textSize="18sp" />
 
     <!-- 다른 필요한 뷰들도 추가 가능 -->
 
