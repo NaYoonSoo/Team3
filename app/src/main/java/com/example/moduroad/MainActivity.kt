@@ -1,8 +1,11 @@
 package com.example.moduroad
 
 import MyMapFragment
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,5 +18,15 @@ class MainActivity : AppCompatActivity() {
             replace(R.id.map_fragment_container, mapFragment)
             commit()
         }
+
+        // search_road_button 찾기
+        val searchRoadButton: Button = findViewById(R.id.search_road_button)
+
+        // search_road_button 클릭 리스너 설정
+        searchRoadButton.setOnClickListener(View.OnClickListener {
+            // RouteSearchActivity로 이동
+            val intent = Intent(this@MainActivity, RouteSearchActivity::class.java)
+            startActivity(intent)
+        })
     }
 }

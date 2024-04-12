@@ -17,6 +17,9 @@
         android:theme="@style/Theme.Moduroad"
         tools:targetApi="31">
         <activity
+            android:name=".RouteSearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".MapPickerActivity"
             android:exported="false" />
         <activity
@@ -24,9 +27,6 @@
             android:exported="false" />
         <activity
             android:name=".LocationInputActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RouteSearchActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
