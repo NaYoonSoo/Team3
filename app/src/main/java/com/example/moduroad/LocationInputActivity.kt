@@ -24,6 +24,7 @@ class LocationInputActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var searchInput: EditText
+    private val LOCATION_REQUEST_CODE = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,53 +38,27 @@ class LocationInputActivity : AppCompatActivity() {
             insets
         }
 
-        val currentLocationButton = findViewById<Button>(R.id.button_current_location)
-        val selectFromMapButton = findViewById<Button>(R.id.button_select_from_map) // "지도에서 선택" 버튼 추가
+        val selectFromMapButton = findViewById<Button>(R.id.button_select_from_map)
         searchInput = findViewById<EditText>(R.id.search_input)
 
-        currentLocationButton.setOnClickListener {
-            getCurrentLocation()
-        }
-
         selectFromMapButton.setOnClickListener {
-            // "지도에서 선택" 버튼 클릭 시 MapPickerActivity로 이동
             val intent = Intent(this, MapPickerActivity::class.java)
-            startActivity(intent)
-        }
-
-        searchInput.setOnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE || event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
-                val searchText = v.text.toString()
-                returnSelectedLocation(searchText)
-                true
-            } else {
-                false
-            }
+            startActivityForResult(intent, LOCATION_REQUEST_CODE)
         }
     }
 
-    private fun getCurrentLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1000)
-            return
-        }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        val task: Task<Location> = fusedLocationClient.lastLocation
-        task.addOnSuccessListener { location ->
-            if (location != null) {
-                val result = "${location.latitude}, ${location.longitude}"
-                searchInput.setText(result) // 현재 위치를 EditText에 설정합니다.
-                returnSelectedLocation(result) // 현재 위치를 반환합니다.
-            } else {
-                Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+        if (requestCode == LOCATION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            data?.let {
+                val latitude = it.getDoubleExtra("latitude", 0.0)
+                val longitude = it.getDoubleExtra("longitude", 0.0)
+                val location = "$latitude, $longitude"
+                val returnIntent = Intent().putExtra("location", location)
+                setResult(Activity.RESULT_OK, returnIntent)
+                finish()
             }
         }
-    }
-
-    private fun returnSelectedLocation(location: String) {
-        val returnIntent = Intent()
-        returnIntent.putExtra("location", location)
-        setResult(Activity.RESULT_OK, returnIntent)
-        finish()
     }
 }
