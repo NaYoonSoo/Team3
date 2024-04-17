@@ -59,14 +59,14 @@
                 android:id="@+id/startLocation"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/background_divider"
-                android:padding="8dp"
-                android:hint="출발지"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"/>
+                android:hint="출발지"
+                android:padding="8dp" />
 
             <EditText
                 android:id="@+id/endLocation"
