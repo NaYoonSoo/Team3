@@ -27,61 +27,74 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:weightSum="3">
+            android:orientation="vertical">
 
-            <RadioGroup
-                android:id="@+id/transportOptions"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center">
-                <RadioButton
-                    android:id="@+id/radio_normal_route"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:button="@null"
-                    android:background="@drawable/radio_button_selector_normal"
-                    android:layout_marginEnd="8dp"
-                    android:drawablePadding="-5dp"/>
-                <RadioButton
-                    android:id="@+id/radio_special_route"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:button="@null"
-                    android:background="@drawable/radio_button_selector_special"
-                    android:layout_marginStart="8dp"
-                    android:drawablePadding="-5dp"/>
-            </RadioGroup>
-
+            <!-- 출발지 EditText -->
             <EditText
                 android:id="@+id/startLocation"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:layout_weight="1"
                 android:background="@drawable/background_divider"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:hint="출발지"
                 android:padding="8dp" />
 
+            <!-- 도착지 EditText -->
             <EditText
                 android:id="@+id/endLocation"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="50dp"
                 android:background="@drawable/background_divider"
                 android:padding="8dp"
                 android:hint="도착지"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="15dp" />
 
-        </LinearLayout>
+            <!-- RadioGroup (이동 수단 선택) -->
+            <RadioGroup
+                android:id="@+id/transportOptions"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:orientation="horizontal"
+                android:gravity="center">
 
-    </FrameLayout>
+            <RadioButton
+                android:id="@+id/radio_normal_route"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:button="@null"
+                android:background="@drawable/baseline_directions_walk_24_b"
+                android:layout_marginEnd="25dp"
+                android:drawablePadding="-5dp"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/radio_elderly_route"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/baseline_elderly_24_b"
+                android:button="@null"
+                android:drawablePadding="-5dp" />
+
+            <RadioButton
+                android:id="@+id/radio_special_route"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/baseline_accessible_forward_24_b"
+                android:button="@null"
+                android:drawablePadding="-5dp" />
+        </RadioGroup>
+    </LinearLayout>
+
+
+</FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
