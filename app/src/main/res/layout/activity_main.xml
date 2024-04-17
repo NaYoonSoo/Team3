@@ -9,7 +9,34 @@
     <FrameLayout
         android:id="@+id/map_fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/elevatorButton"
+            android:layout_width="109dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="20dp"
+            android:text="@string/elevator"
+            android:textSize="11sp"
+            android:paddingStart="-5dp"
+            android:paddingEnd="-5dp"
+            app:icon="@drawable/ic_elevator"
+            app:iconSize="23dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/upper_container"
+            app:layout_constraintVertical_bias="0.121" />
+    </FrameLayout>
 
     <RelativeLayout
         android:id="@+id/upper_container"
@@ -74,14 +101,5 @@
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/current_location" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/upper_container"
-        app:layout_constraintVertical_bias="0.121" />
 
 </RelativeLayout>
