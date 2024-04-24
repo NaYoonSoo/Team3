@@ -3,7 +3,7 @@
     <string name="current_location">현재 위치</string>
     <string name="find_road">길찾기</string>
     <string name="select_from_map">지도에서 선택</string>
-    <string name="start_search_hint">출발지를 입력하세요</string>
+    <string name="start_search_hint">주소를 입력하세요</string>
     <string name="elevator">엘레베이터</string>
 
 </resources>

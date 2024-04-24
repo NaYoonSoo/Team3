@@ -14,7 +14,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.24" />
 
-    <!-- 하얀 배경의 LinearLayout -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -25,73 +24,69 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- 출발지 EditText -->
-    <EditText
-        android:id="@+id/startLocation"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginHorizontal="8dp"
-        android:background="@drawable/background_divider"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:hint="출발지"
-        android:padding="8dp"/>
+        <EditText
+            android:id="@+id/startLocation"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/background_divider"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="출발지"
+            android:padding="8dp"/>
 
-    <!-- 도착지 EditText -->
-    <EditText
-        android:id="@+id/endLocation"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginHorizontal="8dp"
-        android:background="@drawable/background_divider"
-        android:padding="8dp"
-        android:hint="도착지"
-        android:focusable="false"
-        android:focusableInTouchMode="false"/>
+        <EditText
+            android:id="@+id/endLocation"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/background_divider"
+            android:padding="8dp"
+            android:hint="도착지"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
-    <!-- RadioGroup (이동 수단 선택) -->
-    <RadioGroup
-        android:id="@+id/transportOptions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-        <RadioButton
-            android:id="@+id/radio_normal_route"
-            android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/transportOptions"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:button="@null"
-            android:background="@drawable/radio_icon_normal_route_selector"
-            android:drawablePadding="10dp"
-            android:checked="true"
-            android:layout_marginEnd="16dp"/>
-        <RadioButton
-            android:id="@+id/radio_elderly_route"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/radio_icon_elderly_route_selector"
-            android:button="@null"
-            android:drawablePadding="-5dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"/>
-        <RadioButton
-            android:id="@+id/radio_special_route"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/radio_icon_accessible_route_selector"
-            android:button="@null"
-            android:drawablePadding="-5dp"
-            android:layout_marginStart="16dp"/>
-    </RadioGroup>
-</LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center">
+            <RadioButton
+                android:id="@+id/radio_normal_route"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@null"
+                android:background="@drawable/radio_icon_normal_route_selector"
+                android:drawablePadding="10dp"
+                android:checked="true"
+                android:layout_marginEnd="16dp"/>
+            <RadioButton
+                android:id="@+id/radio_elderly_route"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/radio_icon_elderly_route_selector"
+                android:button="@null"
+                android:drawablePadding="-5dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"/>
+            <RadioButton
+                android:id="@+id/radio_special_route"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/radio_icon_accessible_route_selector"
+                android:button="@null"
+                android:drawablePadding="-5dp"
+                android:layout_marginStart="16dp"/>
+        </RadioGroup>
+    </LinearLayout>
 
     <com.naver.maps.map.MapView
         android:id="@+id/map_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/guideline"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
