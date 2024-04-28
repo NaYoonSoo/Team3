@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moduroad.network.RetrofitClient
 import com.example.moduroad.model.PathRequest
@@ -110,6 +111,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
                     Log.d("RouteSearchActivity", "Response: ${response.body()}")
                     response.body()?.let {
                         drawRoute(it.route)
+                        updateRouteTime(it.time) // 소요 시간 업데이트 메소드를 호출합니다.
                     }
                 } else {
                     Log.e("RouteSearchActivity", "Response not successful: ${response.errorBody()?.string()}")
@@ -122,6 +124,10 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
+    private fun updateRouteTime(time: String) {
+        findViewById<TextView>(R.id.normal_route_time).text = time
+        // 다른 경로 옵션들에 대한 시간도 이와 유사하게 설정할 수 있습니다.
+    }
 
     private fun drawRoute(routePoints: List<List<Double>>) {
         // 기존 경로가 있으면 지도에서 제거

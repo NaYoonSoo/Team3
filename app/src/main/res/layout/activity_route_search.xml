@@ -54,33 +54,63 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
-            <RadioButton
-                android:id="@+id/radio_normal_route"
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@null"
-                android:background="@drawable/radio_icon_normal_route_selector"
-                android:drawablePadding="10dp"
-                android:checked="true"
-                android:layout_marginEnd="16dp"/>
-            <RadioButton
-                android:id="@+id/radio_elderly_route"
+                android:orientation="vertical">
+                <RadioButton
+                    android:id="@+id/radio_normal_route"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:button="@null"
+                    android:background="@drawable/radio_icon_normal_route_selector"/>
+                <TextView
+                    android:id="@+id/normal_route_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:gravity="center_horizontal"/>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/radio_icon_elderly_route_selector"
-                android:button="@null"
-                android:drawablePadding="-5dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"/>
-            <RadioButton
-                android:id="@+id/radio_special_route"
+                android:orientation="vertical">
+                <RadioButton
+                    android:id="@+id/radio_elderly_route"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@null"
+                    android:background="@drawable/radio_icon_elderly_route_selector"/>
+                <TextView
+                    android:id="@+id/elderly_route_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:gravity="center_horizontal"/>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/radio_icon_accessible_route_selector"
-                android:button="@null"
-                android:drawablePadding="-5dp"
-                android:layout_marginStart="16dp"/>
+                android:orientation="vertical">
+                <RadioButton
+                    android:id="@+id/radio_special_route"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@null"
+                    android:background="@drawable/radio_icon_accessible_route_selector"/>
+                <TextView
+                    android:id="@+id/special_route_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:gravity="center_horizontal"/>
+            </LinearLayout>
         </RadioGroup>
+
     </LinearLayout>
 
     <com.naver.maps.map.MapView
