@@ -109,10 +109,12 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onResponse(call: Call<RouteResponse>, response: Response<RouteResponse>) {
                 if (response.isSuccessful) {
                     Log.d("RouteSearchActivity", "Response: ${response.body()}")
+// onResponse 메소드 내부
                     response.body()?.let {
                         drawRoute(it.route)
-                        updateRouteTime(it.time) // 소요 시간 업데이트 메소드를 호출합니다.
+                        updateRouteTime(it.time, it.distance) // 소요 시간과 거리 정보를 업데이트합니다.
                     }
+
                 } else {
                     Log.e("RouteSearchActivity", "Response not successful: ${response.errorBody()?.string()}")
                 }
@@ -124,10 +126,13 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    private fun updateRouteTime(time: String) {
-        findViewById<TextView>(R.id.normal_route_time).text = time
-        // 다른 경로 옵션들에 대한 시간도 이와 유사하게 설정할 수 있습니다.
+    // RouteSearchActivity.kt
+    private fun updateRouteTime(time: String, distance: String) {
+        val textToShow = "$time ($distance)" // 예를 들어 "15분 (2.5km)"
+        findViewById<TextView>(R.id.route_info).text = textToShow
     }
+
+
 
     private fun drawRoute(routePoints: List<List<Double>>) {
         // 기존 경로가 있으면 지도에서 제거
