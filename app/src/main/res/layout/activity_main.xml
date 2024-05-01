@@ -78,59 +78,63 @@
 
         <!-- MaterialButton -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/first_button"
+            android:id="@+id/elevator_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button1"
+            android:paddingStart="-10dp"
+            android:paddingEnd="-10dp"
+            android:text="엘레베이터"
             android:textColor="#000000"
-            android:textSize="13sp"
+            android:textSize="14sp"
             app:backgroundTint="#DADADA"
             app:icon="@drawable/ic_elevator"
             app:iconGravity="textStart"
-            app:iconPadding="8dp"
+            app:iconPadding="1dp"
             app:iconSize="23dp"
             app:iconTint="@color/black"
             app:strokeColor="#A8A8A8"
             app:strokeWidth="1dp" />
         <!-- 두 번째 모서리가 둥근 버튼 -->
-        <Button
-            android:id="@+id/second_button"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/escalator_button"
             android:layout_width="0dp"
-            android:layout_height="34dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:background="@drawable/rounded_rectangle"
-            android:text="Button 2" />
+            android:text="에스컬레이터"
+            android:paddingStart="-10dp"
+            android:paddingEnd="-10dp"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            app:backgroundTint="#DADADA"
+            app:icon="@drawable/ic_escalator"
+            app:iconGravity="textStart"
+            app:iconPadding="1dp"
+            app:iconSize="23dp"
+            app:iconTint="@color/black"
+            app:strokeColor="#A8A8A8"
+            app:strokeWidth="1dp" />
 
         <!-- 세 번째 모서리가 둥근 버튼 -->
-        <Button
-            android:id="@+id/third_button"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/parking_button"
             android:layout_width="0dp"
-            android:layout_height="34dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:background="@drawable/rounded_rectangle"
-            android:text="Button 3" />
+            android:text="장애인용 주차장"
+            android:paddingStart="-10dp"
+            android:paddingEnd="-10dp"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            app:backgroundTint="#DADADA"
+            app:icon="@drawable/ic_parking"
+            app:iconGravity="textStart"
+            app:iconPadding="1dp"
+            app:iconSize="23dp"
+            app:iconTint="@color/black"
+            app:strokeColor="#A8A8A8"
+            app:strokeWidth="1dp" />
     </LinearLayout>
-
-
-    <!--
-    <ImageButton
-        android:id="@+id/button_current_location"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_gps"
-        android:scaleType="fitCenter"
-        android:background="@drawable/bg_white_circle"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/current_location" />
-    -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

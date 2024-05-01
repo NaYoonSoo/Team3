@@ -1,3 +1,5 @@
+package com.example.moduroad
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,14 +22,15 @@ import android.content.pm.PackageManager
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraUpdate
 
-class MyMapFragment : MapFragment(), OnMapReadyCallback {
+class NaverMapFragment : MapFragment(), OnMapReadyCallback {
     private lateinit var locationSource: FusedLocationSource
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var locationRequest: LocationRequest? = null
     private var locationCallback: LocationCallback? = null
     private var currentMarker: Marker? = null
-    private lateinit var naverMap: NaverMap
+    lateinit var naverMap: NaverMap
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    var firebaseDataManager: FirebaseDataManager? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,6 +62,8 @@ class MyMapFragment : MapFragment(), OnMapReadyCallback {
         setupLocationCallback()
         updateCurrentLocationAndMoveCamera()  // Move camera to current location at start
         startLocationUpdates()
+
+
     }
 
     private fun setupMap() {
@@ -193,3 +198,5 @@ class MyMapFragment : MapFragment(), OnMapReadyCallback {
         }
     }
 }
+
+
