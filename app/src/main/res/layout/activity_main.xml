@@ -12,7 +12,9 @@
         android:id="@+id/map_fragment"
         android:name="com.naver.maps.map.MapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="-16dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <RelativeLayout
         android:id="@+id/upper_container"
@@ -43,6 +45,7 @@
             android:background="@android:color/white"
             android:queryHint="검색할 장소를 입력하세요."
             android:layout_centerVertical="true" />
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/search_road_button"
@@ -76,11 +79,12 @@
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/upper_container">
 
-        <!-- MaterialButton -->
+        <!-- 엘레베이터 버튼 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/elevator_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:paddingStart="-10dp"
             android:paddingEnd="-10dp"
@@ -93,14 +97,16 @@
             app:iconPadding="1dp"
             app:iconSize="23dp"
             app:iconTint="@color/black"
+            app:rippleColor="#2D5AFF"
             app:strokeColor="#A8A8A8"
             app:strokeWidth="1dp" />
-        <!-- 두 번째 모서리가 둥근 버튼 -->
+        <!-- 에스컬레이터 버튼 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/escalator_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginEnd="8dp"
             android:text="에스컬레이터"
             android:paddingStart="-10dp"
             android:paddingEnd="-10dp"
@@ -113,14 +119,16 @@
             app:iconSize="23dp"
             app:iconTint="@color/black"
             app:strokeColor="#A8A8A8"
-            app:strokeWidth="1dp" />
+            app:strokeWidth="1dp"
+            app:rippleColor="#2D5AFF"/>
 
-        <!-- 세 번째 모서리가 둥근 버튼 -->
+        <!-- 장애인용 주차장 버튼 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/parking_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginEnd="8dp"
             android:text="장애인용 주차장"
             android:paddingStart="-10dp"
             android:paddingEnd="-10dp"
@@ -133,7 +141,8 @@
             app:iconSize="23dp"
             app:iconTint="@color/black"
             app:strokeColor="#A8A8A8"
-            app:strokeWidth="1dp" />
+            app:strokeWidth="1dp"
+            app:rippleColor="#2D5AFF"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -142,10 +151,10 @@
         android:layout_height="206dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/upper_container"
-        app:layout_constraintVertical_bias="0.121" />
-
+        app:layout_constraintVertical_bias="0.053" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
