@@ -1,6 +1,6 @@
 package com.example.moduroad
 
-import com.example.moduroad.com.example.moduroad.network.SearchResponse
+import com.example.moduroad.network.SearchResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header

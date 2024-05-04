@@ -1,4 +1,4 @@
-package com.example.moduroad.com.example.moduroad.network
+package com.example.moduroad.network
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -65,7 +65,7 @@ interface SearchApiService {
 object RetrofitInstance {
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("YOUR_API_BASE_URL") // API의 Base URL을 설정하세요.
+            .baseUrl("https://openapi.naver.com") // API의 Base URL을 설정하세요.
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -76,12 +76,12 @@ object RetrofitInstance {
 
     fun getClientId(): String {
         // 클라이언트 ID를 가져오는 로직
-        return "your_client_id"
+        return "watt6cqojf"
     }
 
     fun getClientSecret(): String {
         // 클라이언트 시크릿을 가져오는 로직
-        return "your_client_secret"
+        return "TjYQdEwcyZ12KDaqMTpqrGQHncCxD1jQamICZG0J"
     }
 }
 

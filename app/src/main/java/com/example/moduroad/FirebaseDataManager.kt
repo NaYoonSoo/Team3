@@ -1,5 +1,3 @@
-/* 주변 시설 표시 (엘레베이터, 에스컬레이터, 장애인용 주차장) */
-
 package com.example.moduroad
 
 import com.google.firebase.firestore.ktx.firestore
@@ -8,17 +6,14 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.OverlayImage
+import kotlin.math.*
 
 class FirebaseDataManager {
     private val db = Firebase.firestore
-
-    // 현재 지도에 표시된 마커들을 저장할 리스트
     private val markersOnMap = mutableListOf<Marker>()
-
-    // 마지막으로 조회한 시설 종류 저장
     private var lastQueriedType: String = ""
 
-    fun fetchLocations(type: String, naverMap: NaverMap) {
+    fun fetchLocations(type: String, naverMap: NaverMap, currentLocation: LatLng) {
         if (lastQueriedType == type) {
             clearMarkers()
             lastQueriedType = ""
@@ -40,7 +35,10 @@ class FirebaseDataManager {
                 val lat = document.getDouble("latitude")
                 val lng = document.getDouble("longitude")
                 if (lat != null && lng != null) {
-                    addMarkerOnMap(LatLng(lat, lng), naverMap, type)
+                    val distance = calculateDistance(currentLocation.latitude, currentLocation.longitude, lat, lng)
+                    if (distance <= 5) { // 5km 이내의 거리에 있는 경우만 마커 추가
+                        addMarkerOnMap(LatLng(lat, lng), naverMap, type)
+                    }
                 }
             }
         }
@@ -63,5 +61,15 @@ class FirebaseDataManager {
             marker.map = null
         }
         markersOnMap.clear()
+    }
+
+    // 두 위치 사이의 거리를 계산 (단위: km)
+    private fun calculateDistance(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
+        val earthRadius = 6371 // 지구 반경 (km)
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLng = Math.toRadians(lng2 - lng1)
+        val a = sin(dLat / 2).pow(2.0) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLng / 2).pow(2.0)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return earthRadius * c
     }
 }

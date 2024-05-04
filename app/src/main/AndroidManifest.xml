@@ -20,13 +20,13 @@
 
 
         <activity
-            android:name=".com.example.moduroad.network.SearchApiService"
+            android:name=".network.SearchApiService"
             android:exported="false" />
         <activity
             android:name=".SearchResultsActivity"
             android:exported="false" />
         <activity
-            android:name=".com.example.moduroad.network.RetrofitInstance"
+            android:name=".network.RetrofitInstance"
             android:exported="false" />
         <activity
             android:name=".NaverSearchAPI"
@@ -52,10 +52,10 @@
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="sevyscnelo" />
+            android:value="watt6cqojf" />
         <meta-data
             android:name="com.naver.maps.map.CLIENT_SECRET"
-            android:value="Paa6tD4f3y7m0bCHn30LvrndWF7Gmv6CJ1EZKcHY" />
+            android:value="TjYQdEwcyZ12KDaqMTpqrGQHncCxD1jQamICZG0J" />
     </application>
 
 </manifest>

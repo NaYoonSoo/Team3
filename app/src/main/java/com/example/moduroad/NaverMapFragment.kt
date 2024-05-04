@@ -40,7 +40,7 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
         val rootView = super.onCreateView(inflater, container, savedInstanceState)
 
         // Initialize FusedLocationProviderClient
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         // Asynchronously receive the map object
         getMapAsync(this)
