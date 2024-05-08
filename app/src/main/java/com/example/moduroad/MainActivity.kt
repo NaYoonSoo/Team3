@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             this.firebaseDataManager = FirebaseDataManager()
         }
 
-        // NaverMapFragment 인스턴스를 지정된 container에 추가
+        // NaverMapFragment 인스턴스를 지정된 container에 추가함
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.map_fragment, naverMapFragment)
             commit()
