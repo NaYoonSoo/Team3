@@ -5,13 +5,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.moduroad.network.RetrofitClient
 import com.example.moduroad.model.PathRequest
 import com.example.moduroad.model.RouteResponse
+import com.example.moduroad.network.RetrofitClient
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*

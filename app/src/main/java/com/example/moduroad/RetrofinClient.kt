@@ -1,6 +1,5 @@
-package com.example.moduroad.network
+package com.example.moduroad
 
-import com.example.moduroad.NaverAPI
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
