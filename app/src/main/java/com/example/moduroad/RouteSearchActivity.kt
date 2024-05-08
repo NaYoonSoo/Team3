@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moduroad.network.RetrofitClient
@@ -34,6 +35,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var startMarker: Marker
     private lateinit var endMarker: Marker
     private var currentPath: PolylineOverlay? = null
+    private var currentType: String = "normal" // 기본으로 'normal' 타입 설정
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,21 +48,34 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
+        findViewById<RadioGroup>(R.id.transportOptions).setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.radio_normal_route -> currentType = "normal"
+                R.id.radio_elderly_route -> currentType = "elderly"
+                R.id.radio_special_route -> currentType = "wheelchair"
+            }
+            Log.d("RouteSearchActivity", "Type changed to: $currentType")
+            checkBothLocationsSet() // Type 변경 시 경로 검색을 트리거합니다.
+        }
+
         startLocationEditText.setOnClickListener {
-            val intent = Intent(this@RouteSearchActivity, LocationInputActivity::class.java)
+            val intent = Intent(this, LocationInputActivity::class.java)
             startActivityForResult(intent, LOCATION_REQUEST_CODE_START)
         }
 
         endLocationEditText.setOnClickListener {
-            val intent = Intent(this@RouteSearchActivity, LocationInputActivity::class.java)
+            val intent = Intent(this, LocationInputActivity::class.java)
             startActivityForResult(intent, LOCATION_REQUEST_CODE_END)
         }
     }
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
+        startMarker = Marker()
+        endMarker = Marker()
         setupMap()
     }
+
 
     private fun setupMap() {
         naverMap?.let { map ->
@@ -79,42 +94,42 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             val location = LatLng(lat, lng)
             map.moveCamera(CameraUpdate.scrollTo(location))
 
-            if (isStartLocation) {
+            val marker = if (isStartLocation) {
                 if (!this::startMarker.isInitialized) startMarker = Marker()
-                startMarker.map = null
-                startMarker.position = location
-                startMarker.map = map
+                startMarker
             } else {
                 if (!this::endMarker.isInitialized) endMarker = Marker()
-                endMarker.map = null
-                endMarker.position = location
-                endMarker.map = map
+                endMarker
             }
+
+            marker.position = location
+            marker.map = map
         }
     }
+
 
     private fun checkBothLocationsSet() {
         if (startLocationEditText.text.isNotEmpty() && endLocationEditText.text.isNotEmpty()) {
             val startLatLng = startLocationEditText.text.toString().split(",").map { it.trim().toDouble() }
             val endLatLng = endLocationEditText.text.toString().split(",").map { it.trim().toDouble() }
-            findPath(startLatLng[0], startLatLng[1], endLatLng[0], endLatLng[1])
+            findPath(startLatLng[0], startLatLng[1], endLatLng[0], endLatLng[1], currentType)
         }
     }
 
-    private fun findPath(latStart: Double, lngStart: Double, latEnd: Double, lngEnd: Double) {
+
+    private fun findPath(latStart: Double, lngStart: Double, latEnd: Double, lngEnd: Double, type: String) {
         val apiService = RetrofitClient.yourApiInstance
-        val request = PathRequest(latStart, lngStart, latEnd, lngEnd)
+        val request = PathRequest(latStart, lngStart, latEnd, lngEnd, type)
+
+        Log.d("RouteSearchActivity", "Sending path request with type: $currentType")
 
         apiService.findPath(request).enqueue(object : Callback<RouteResponse> {
             override fun onResponse(call: Call<RouteResponse>, response: Response<RouteResponse>) {
                 if (response.isSuccessful) {
-                    Log.d("RouteSearchActivity", "Response: ${response.body()}")
-// onResponse 메소드 내부
                     response.body()?.let {
                         drawRoute(it.route)
-                        updateRouteTime(it.time, it.distance) // 소요 시간과 거리 정보를 업데이트합니다.
+                        updateRouteTime(it.time, it.distance)
                     }
-
                 } else {
                     Log.e("RouteSearchActivity", "Response not successful: ${response.errorBody()?.string()}")
                 }
@@ -126,57 +141,52 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    // RouteSearchActivity.kt
     private fun updateRouteTime(time: String, distance: String) {
-        val textToShow = "$time ($distance)" // 예를 들어 "15분 (2.5km)"
+        val textToShow = "$time ($distance)"
         findViewById<TextView>(R.id.route_info).text = textToShow
     }
 
-
-
     private fun drawRoute(routePoints: List<List<Double>>) {
-        // 기존 경로가 있으면 지도에서 제거
         currentPath?.map = null
 
-        // 새로운 경로 생성
         val path = PolylineOverlay().apply {
             color = Color.BLUE
             width = 10
             coords = routePoints.map { LatLng(it[1], it[0]) }
         }
 
-        // 지도에 새로운 경로 추가
         path.map = naverMap
-
-        // 현재 경로 업데이트
         currentPath = path
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && data != null) {
-            val location = data.getStringExtra("location") ?: ""
-            val latLng = location.split(",").map { it.trim().toDouble() }
-            when (requestCode) {
-                LOCATION_REQUEST_CODE_START -> {
-                    startLocationEditText.setText(location)
-                    moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = true)
-                    checkBothLocationsSet()
-                }
-                LOCATION_REQUEST_CODE_END -> {
-                    endLocationEditText.setText(location)
-                    moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = false)
-                    checkBothLocationsSet()
+            val location = data.getStringExtra("location")
+            Log.d("RouteSearchActivity", "Received location: $location")  // 로그 추가
+            if (location != null) {
+                val latLng = location.split(",").map { it.trim().toDouble() }
+                when (requestCode) {
+                    LOCATION_REQUEST_CODE_START -> {
+                        startLocationEditText.setText(location)
+                        moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = true)
+                        checkBothLocationsSet()
+                    }
+                    LOCATION_REQUEST_CODE_END -> {
+                        endLocationEditText.setText(location)
+                        moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = false)
+                        checkBothLocationsSet()
+                    }
                 }
             }
+        } else {
+            Log.d("RouteSearchActivity", "Failed to receive location or bad resultCode: $resultCode") // 실패 로그 추가
         }
     }
 
-// 생명주기 관련 메소드들은 이전에 주어진 것처럼 클래스 내부에 위치합니다.
 
 
-    // 생명주기 관련 메소드들은 여기 위치합니다.
+    // 생명주기 관련 메소드들은 이전에 주어진 것처럼 클래스 내부에 위치합니다.
     override fun onStart() {
         super.onStart()
         mapView.onStart()
@@ -213,5 +223,4 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onLowMemory()
         mapView.onLowMemory()
     }
-
 }
