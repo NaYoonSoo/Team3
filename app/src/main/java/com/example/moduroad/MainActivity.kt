@@ -13,16 +13,45 @@ import com.naver.maps.geometry.LatLng
 import androidx.core.app.ActivityCompat
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.moduroad.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var naverMapFragment: NaverMapFragment
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var currentLocation: LatLng
+    private lateinit var adapter: PlacesAdapter
+    private lateinit var placeSearchService: PlaceSearchService
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        // View Binding 초기화
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        adapter = PlacesAdapter()
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // PlaceSearchService 인스턴스 생성
+        placeSearchService = PlaceSearchService(this)
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let {
+                    // 검색 서비스를 통해 장소 검색
+                    placeSearchService.searchPlaces(it, adapter)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
 
         // 위치 서비스 클라이언트 초기화
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -33,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             this.firebaseDataManager = FirebaseDataManager()
         }
 
-        // NaverMapFragment 인스턴스를 지정된 container에 추가
+        // NaverMapFragment 인스턴스를 지정된 container에 추가함
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.map_fragment, naverMapFragment)
             commit()
@@ -58,16 +87,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupButtonListeners() {
-        findViewById<Button>(R.id.elevator_button).setOnClickListener {
+        binding.elevatorButton.setOnClickListener {
             naverMapFragment.firebaseDataManager?.fetchLocations("elevator", naverMapFragment.naverMap, currentLocation)
         }
-        findViewById<Button>(R.id.escalator_button).setOnClickListener {
+        binding.escalatorButton.setOnClickListener {
             naverMapFragment.firebaseDataManager?.fetchLocations("escalator", naverMapFragment.naverMap, currentLocation)
         }
-        findViewById<Button>(R.id.parking_button).setOnClickListener {
+        binding.parkingButton.setOnClickListener {
             naverMapFragment.firebaseDataManager?.fetchLocations("parking", naverMapFragment.naverMap, currentLocation)
         }
-        findViewById<Button>(R.id.search_road_button).setOnClickListener {
+        binding.searchRoadButton.setOnClickListener {
             // RouteSearchActivity로 이동
             val intent = Intent(this@MainActivity, RouteSearchActivity::class.java)
             startActivity(intent)
@@ -75,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupMenuButton() {
-        findViewById<ImageButton>(R.id.button_menu).setOnClickListener { view ->
+        binding.buttonMenu.setOnClickListener { view ->
             showMenu(view)
         }
     }
@@ -97,14 +126,4 @@ class MainActivity : AppCompatActivity() {
             show()
         }
     }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1000 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            getCurrentLocation()
-        } else {
-            // 권한 거부됨
-        }
-    }
-
 }
