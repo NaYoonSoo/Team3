@@ -20,6 +20,7 @@ android {
         buildConfigField("String", "CLIENT_ID", "\"bP2f2VGdQIzl8E6KLXp4\"")
         buildConfigField("String", "CLIENT_SECRET", "\"LNpJPXF0XJ\"")
     buildFeatures {
+        viewBinding = true
         buildConfig = true
         }
     }
@@ -39,9 +40,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-    }
-    viewBinding {
-        var enabled = true
     }
 
 

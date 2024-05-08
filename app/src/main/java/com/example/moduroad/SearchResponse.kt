@@ -9,5 +9,10 @@ data class SearchResponse(
 data class Place(
     val title: String,
     val address: String,
-    val roadAddress: String
+    val roadAddress: String,
+    val display: Int,
+    val start: Int,
+    val sort: String,
+    val lon: Double,
+    val lat: Double
 )
