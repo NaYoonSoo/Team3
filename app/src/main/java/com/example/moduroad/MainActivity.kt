@@ -3,6 +3,9 @@ package com.example.moduroad
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
+import android.view.View
+import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -37,8 +40,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         getCurrentLocation() // 사용자의 현재 위치 획득
-
-        // 버튼 리스너는 위치 정보를 획득한 후에 설정
+        setupMenuButton()    // 메뉴 버튼 리스너 설정
     }
 
     private fun getCurrentLocation() {
@@ -69,6 +71,30 @@ class MainActivity : AppCompatActivity() {
             // RouteSearchActivity로 이동
             val intent = Intent(this@MainActivity, RouteSearchActivity::class.java)
             startActivity(intent)
+        }
+    }
+
+    private fun setupMenuButton() {
+        findViewById<ImageButton>(R.id.button_menu).setOnClickListener { view ->
+            showMenu(view)
+        }
+    }
+
+    private fun showMenu(v: View) {
+        PopupMenu(this, v).apply {
+            menuInflater.inflate(R.menu.menu_main, menu)
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.menu_add_obstacle -> {
+                        // AddObstacleActivity로 이동
+                        val intent = Intent(this@MainActivity, AddObstacleActivity::class.java)
+                        startActivity(intent)
+                        true
+                    }
+                    else -> false
+                }
+            }
+            show()
         }
     }
 
