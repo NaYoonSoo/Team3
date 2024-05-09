@@ -1,6 +1,6 @@
 /* 네이버 검색 API를 호출하기 위한 인터페이스 정의 */
 
-package com.example.moduroad
+package com.example.moduroad.placeAPI
 
 import retrofit2.Call
 import retrofit2.http.GET
@@ -12,6 +12,9 @@ interface NaverAPI {
     fun searchPlaces(
         @Header("X-Naver-Client-Id") clientId: String,
         @Header("X-Naver-Client-Secret") clientSecret: String,
-        @Query("query") query: String
+        @Query("query") query: String,
+        @Query("display") display: Int,
+        @Query("start") start: Int,
+        @Query("sort") sort: String
     ): Call<SearchResponse>
 }

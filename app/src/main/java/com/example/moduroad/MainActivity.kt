@@ -2,8 +2,6 @@ package com.example.moduroad
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.ImageButton
 import android.view.View
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +14,8 @@ import android.content.pm.PackageManager
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.moduroad.databinding.ActivityMainBinding
+import com.example.moduroad.placeAPI.PlaceSearchService
+import com.example.moduroad.placeAPI.PlacesAdapter
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
                     // 검색 서비스를 통해 장소 검색
-                    placeSearchService.searchPlaces(it, adapter)
+                    placeSearchService.searchPlaces(it, 5, 1, "random", adapter)
                 }
                 return true
             }

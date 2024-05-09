@@ -1,6 +1,6 @@
 /* API로부터 받은 응답을 저장할 모델 클래스 */
 
-package com.example.moduroad
+package com.example.moduroad.placeAPI
 
 data class SearchResponse(
     val items: List<Place>
