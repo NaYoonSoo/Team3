@@ -6,14 +6,13 @@ import com.example.moduroad.BuildConfig
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.example.moduroad.network.RetrofitClient
 
 class PlaceSearchService(private val context: Context) {
     fun searchPlaces(query: String, display: Int, start: Int, sort: String, adapter: PlacesAdapter) {
         RetrofitClient.instance.searchPlaces(BuildConfig.CLIENT_ID, BuildConfig.CLIENT_SECRET, query, display, start, sort).enqueue(object : Callback<SearchResponse> {
             override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
                 if (response.isSuccessful) {
-                    // 검색 결과가 성공적으로 반환된 경우, RecyclerView에 데이터 표시.
+                    // 검색 결과가 성공적으로 반환된 경우 RecyclerView에 데이터 표시
                     val places = response.body()?.items ?: emptyList()
                     adapter.setData(places)
                 } else {

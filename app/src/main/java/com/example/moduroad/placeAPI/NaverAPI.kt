@@ -1,4 +1,4 @@
-/* 네이버 검색 API를 호출하기 위한 인터페이스 정의 */
+/* 네이버 검색 API를 호출하기 위한 Interface 정의 */
 
 package com.example.moduroad.placeAPI
 

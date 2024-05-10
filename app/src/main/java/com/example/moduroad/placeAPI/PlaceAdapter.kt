@@ -40,9 +40,9 @@ class PlacesAdapter(private var places: List<Place> = listOf()) : RecyclerView.A
         private val addressTextView: TextView = itemView.findViewById(R.id.tv_list_address)
 
         fun bind(place: Place) {
-            titleTextView.text = place.title
-            roadAddressTextView.text = place.roadAddress
-            addressTextView.text = place.address
+            titleTextView.text = place.title // 장소명
+            roadAddressTextView.text = place.roadAddress // 도로명
+            addressTextView.text = place.address // 지번
         }
     }
 

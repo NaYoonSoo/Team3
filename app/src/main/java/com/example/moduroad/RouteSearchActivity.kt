@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moduroad.model.PathRequest
 import com.example.moduroad.model.RouteResponse
-import com.example.moduroad.network.RetrofitClient
+import com.example.moduroad.placeAPI.RetrofitClient
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*

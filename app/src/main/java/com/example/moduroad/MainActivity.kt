@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // View Binding 초기화
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -36,13 +35,11 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // PlaceSearchService 인스턴스 생성
         placeSearchService = PlaceSearchService(this)
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    // 검색 서비스를 통해 장소 검색
                     placeSearchService.searchPlaces(it, 5, 1, "random", adapter)
                 }
                 return true
@@ -53,23 +50,19 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // 위치 서비스 클라이언트 초기화
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // NaverMapFragment 인스턴스 생성 및 초기화
         naverMapFragment = NaverMapFragment().apply {
-            // firebaseDataManager 할당
             this.firebaseDataManager = FirebaseDataManager()
         }
 
-        // NaverMapFragment 인스턴스를 지정된 container에 추가함
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.map_fragment, naverMapFragment)
             commit()
         }
 
-        getCurrentLocation() // 사용자의 현재 위치 획득
-        setupMenuButton()    // 메뉴 버튼 리스너 설정
+        getCurrentLocation()
+        setupMenuButton()
     }
 
     private fun getCurrentLocation() {
