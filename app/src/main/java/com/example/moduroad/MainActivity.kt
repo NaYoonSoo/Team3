@@ -35,12 +35,12 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        placeSearchService = PlaceSearchService(this)
+        placeSearchService = PlaceSearchService(this, adapter)
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    placeSearchService.searchPlaces(it, 5, 1, "random", adapter)
+                    performSearch(it)
                 }
                 return true
             }
@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         getCurrentLocation()
         setupMenuButton()
+        setupButtonListeners()
     }
 
     private fun getCurrentLocation() {
@@ -74,7 +75,6 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let {
                 currentLocation = LatLng(location.latitude, location.longitude)
-                setupButtonListeners()
             }
         }
     }
@@ -94,6 +94,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this@MainActivity, RouteSearchActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun performSearch(query: String) {
+        placeSearchService.searchPlaces(query, 5, 1, "random", adapter)
     }
 
     private fun setupMenuButton() {

@@ -8,8 +8,12 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.moduroad.databinding.ActivityMainBinding
 import com.example.moduroad.model.PathRequest
 import com.example.moduroad.model.RouteResponse
+import com.example.moduroad.placeAPI.PlaceSearchService
+import com.example.moduroad.placeAPI.PlacesAdapter
 import com.example.moduroad.placeAPI.RetrofitClient
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
@@ -33,9 +37,15 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var startMarker: Marker
     private lateinit var endMarker: Marker
     private var currentPath: PolylineOverlay? = null
+    private lateinit var adapter: PlacesAdapter
+    private lateinit var placeSearchService: PlaceSearchService
+    private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setContentView(R.layout.activity_route_search)
 
         startLocationEditText = findViewById(R.id.startLocation)
@@ -44,6 +54,14 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
+
+        adapter = PlacesAdapter()
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+
+        placeSearchService = PlaceSearchService(this, adapter)
+
+
 
         startLocationEditText.setOnClickListener {
             val intent = Intent(this@RouteSearchActivity, LocationInputActivity::class.java)
@@ -108,10 +126,9 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onResponse(call: Call<RouteResponse>, response: Response<RouteResponse>) {
                 if (response.isSuccessful) {
                     Log.d("RouteSearchActivity", "Response: ${response.body()}")
-// onResponse 메소드 내부
                     response.body()?.let {
                         drawRoute(it.route)
-                        updateRouteTime(it.time, it.distance) // 소요 시간과 거리 정보를 업데이트합니다.
+                        updateRouteTime(it.time, it.distance)
                     }
 
                 } else {
@@ -172,10 +189,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-// 생명주기 관련 메소드들은 이전에 주어진 것처럼 클래스 내부에 위치합니다.
-
-
-    // 생명주기 관련 메소드들은 여기 위치합니다.
     override fun onStart() {
         super.onStart()
         mapView.onStart()
