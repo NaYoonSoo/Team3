@@ -2,14 +2,18 @@ package com.example.moduroad
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.moduroad.placeAPI.RetrofitClient
 import com.example.moduroad.model.PathRequest
 import com.example.moduroad.model.RouteResponse
@@ -21,6 +25,9 @@ import com.naver.maps.map.overlay.PolylineOverlay
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.content.Context
+import android.graphics.drawable.Drawable
+import com.naver.maps.map.overlay.OverlayImage
 
 class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
@@ -71,11 +78,14 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
-        startMarker = Marker()
-        endMarker = Marker()
+        startMarker = Marker().apply {
+            icon = OverlayImage.fromResource(R.drawable.location_start)
+        }
+        endMarker = Marker().apply {
+            icon = OverlayImage.fromResource(R.drawable.location_end)
+        }
         setupMap()
     }
-
 
     private fun setupMap() {
         naverMap?.let { map ->
@@ -142,7 +152,10 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateRouteTime(time: String, distance: String) {
-        val textToShow = "$time ($distance)"
+        val textView: TextView = findViewById(R.id.route_info)
+        val background = ContextCompat.getDrawable(this, R.drawable.border)
+        textView.background = background
+        val textToShow = "⏰소요시간: $time (\uD83C\uDFF4 $distance)"
         findViewById<TextView>(R.id.route_info).text = textToShow
     }
 

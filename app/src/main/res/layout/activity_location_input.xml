@@ -30,28 +30,40 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_input" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_current_location"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/round_button"
         android:text="@string/current_location"
+        android:textColor="#474747"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toStartOf="@+id/button_select_from_map"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_input"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.9"
-        app:layout_constraintHorizontal_bias="0.5"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintWidth_percent="0.45" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_select_from_map"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="72dp"
+        android:background="@drawable/round_button"
         android:text="@string/select_from_map"
-        app:layout_constraintTop_toBottomOf="@id/button_current_location"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textColor="#474747"
+        android:textColorHint="#FFFFFF"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.9"
         app:layout_constraintHorizontal_bias="0.5"
-        android:layout_marginTop="8dp"/>
-
+        app:layout_constraintStart_toEndOf="@+id/button_current_location"
+        app:layout_constraintTop_toBottomOf="@id/search_input"
+        app:layout_constraintWidth_percent="0.45" />
 </androidx.constraintlayout.widget.ConstraintLayout>

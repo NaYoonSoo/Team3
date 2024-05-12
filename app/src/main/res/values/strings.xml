@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">moduroad</string>
-    <string name="current_location">현재 위치</string>
+    <string name="current_location">🏁 \n현재 위치</string>
     <string name="find_road">길찾기</string>
-    <string name="select_from_map">지도에서 선택</string>
-    <string name="start_search_hint">주소를 입력하세요</string>
+    <string name="select_from_map">🗺️\n지도에서\n선택</string>
+    <string name="start_search_hint">검색할 장소를 입력하세요.</string>
     <string name="elevator">엘레베이터</string>
 
 </resources>

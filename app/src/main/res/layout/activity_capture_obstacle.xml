@@ -10,22 +10,28 @@
         android:id="@+id/textView_instructions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="추가하고 싶은 장애물의 사진을 촬영해주세요\n*계단,볼라드,턱만 가능합니다."
+        android:layout_marginTop="20dp"
+        android:text="추가하고 싶은 장애물의 사진을 촬영해주세요\n(⚠️ 계단, 볼라드, 턱만 가능합니다.)"
         android:textAlignment="center"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 적용된 배경 -->
 
     <ImageView
         android:id="@+id/imageView_captured"
         android:layout_width="300dp"
         android:layout_height="500dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@id/textView_instructions"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/rect_border"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:background="@drawable/rect_border" /> <!-- 적용된 배경 -->
+        app:layout_constraintTop_toBottomOf="@id/textView_instructions" />
 
     <Button
         android:id="@+id/button_action"
@@ -33,6 +39,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="사진 촬영하기"
+        android:textSize="19dp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/yellow"
         app:layout_constraintTop_toBottomOf="@id/imageView_captured"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
@@ -42,6 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="장애물 탐지에 성공하면 본 위젯이 동작됩니다."
+        android:textSize="15dp"
         android:textAlignment="center"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/button_action"
