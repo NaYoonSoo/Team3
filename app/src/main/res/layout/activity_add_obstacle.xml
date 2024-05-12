@@ -9,16 +9,35 @@
     <com.naver.maps.map.MapView
         android:id="@+id/map_view_add_obstacle"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/button_add_obstacle"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
 
     <Button
         android:id="@+id/button_add_obstacle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
         android:text="장애물 추가"
-        android:background="?attr/colorPrimary"
+        android:textSize="30sp"
         android:textColor="#FFFFFF"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:layout_marginBottom="32dp"
+        app:layout_constraintStart_toStartOf="@id/guide_start"
+        app:layout_constraintEnd_toEndOf="@id/guide_end"
+        app:layout_constraintBottom_toBottomOf="@id/map_view_add_obstacle"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -4,10 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.naver.maps.map.MapView
-import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.NaverMap
-import android.widget.Button
+import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.LatLngBounds
+import android.widget.Button
+import com.naver.maps.map.CameraUpdate
 
 class AddObstacleActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mapView: MapView
@@ -17,12 +19,10 @@ class AddObstacleActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_obstacle)
 
-        // 지도 뷰를 초기화하고, 맵이 준비되면 콜백을 받습니다.
         mapView = findViewById(R.id.map_view_add_obstacle)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        // "장애물 추가" 버튼을 설정합니다. 클릭하면 CaptureObstacleActivity로 이동합니다.
         findViewById<Button>(R.id.button_add_obstacle).setOnClickListener {
             // CaptureObstacleActivity로 이동하는 인텐트를 생성합니다.
             val intent = Intent(this, CaptureObstacleActivity::class.java)
@@ -32,8 +32,22 @@ class AddObstacleActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
-        // 추가적으로 맵 설정을 여기에서 진행할 수 있습니다.
+        setupMapLimits()
     }
+
+    private fun setupMapLimits() {
+        val inchonBounds = LatLngBounds(
+            LatLng(37.2830, 126.3920), // 남서쪽 좌표
+            LatLng(37.5580, 126.7780)  // 북동쪽 좌표
+        )
+        naverMap.extent = inchonBounds
+        naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(37.4563, 126.7052)))
+        naverMap.minZoom = 10.0
+        naverMap.maxZoom = 18.0
+    }
+
+    // 생명주기 관련 메소드들은 이전에 주어진 것처럼 클래스 내부에 위치합니다.
+
 
     override fun onStart() {
         super.onStart()
