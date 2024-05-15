@@ -162,8 +162,15 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun drawRoute(routePoints: List<List<Double>>) {
         currentPath?.map = null
 
+        val pathColor = when (currentType) {
+            "normal" -> Color.BLUE          // 기본 경로는 파란색
+            "elderly" -> Color.GRAY         // 노약자 경로는 회색
+            "wheelchair" -> Color.RED       // 휠체어 경로는 빨간색
+            else -> Color.BLUE              // 기본값
+        }
+
         val path = PolylineOverlay().apply {
-            color = Color.BLUE
+            color = pathColor
             width = 10
             coords = routePoints.map { LatLng(it[1], it[0]) }
         }
@@ -171,6 +178,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         path.map = naverMap
         currentPath = path
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
