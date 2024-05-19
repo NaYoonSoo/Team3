@@ -14,6 +14,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.moduroad.databinding.ActivityMainBinding
+import com.example.moduroad.obstacle.CaptureObstacleActivity
 import com.example.moduroad.placeAPI.PlaceSearchService
 import com.example.moduroad.placeAPI.PlacesAdapter
 
@@ -108,8 +109,8 @@ class MainActivity : AppCompatActivity() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.menu_add_obstacle -> {
-                        // AddObstacleActivity로 이동
-                        val intent = Intent(this@MainActivity, AddObstacleActivity::class.java)
+                        // CaptureObstacleActivity로 이동
+                        val intent = Intent(this@MainActivity, CaptureObstacleActivity::class.java)
                         startActivity(intent)
                         true
                     }

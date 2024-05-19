@@ -2,16 +2,12 @@ package com.example.moduroad
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
-import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.moduroad.placeAPI.RetrofitClient
@@ -25,8 +21,6 @@ import com.naver.maps.map.overlay.PolylineOverlay
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.content.Context
-import android.graphics.drawable.Drawable
 import com.naver.maps.map.overlay.OverlayImage
 
 class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
