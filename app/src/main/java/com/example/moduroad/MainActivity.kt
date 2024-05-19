@@ -35,12 +35,12 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        placeSearchService = PlaceSearchService(this, adapter)
+        placeSearchService = PlaceSearchService(this, binding.recyclerView, adapter)
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    placeSearchService.searchPlaces(it, 5, 1, "random", adapter)
+                    placeSearchService.searchPlaces(it, 5, 1, "random")
                 }
                 return true
             }

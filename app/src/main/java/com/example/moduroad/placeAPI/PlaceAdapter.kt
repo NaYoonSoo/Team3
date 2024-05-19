@@ -7,13 +7,20 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moduroad.R
 
-class PlacesAdapter(private var places: List<Place> = listOf()) : RecyclerView.Adapter<PlacesAdapter.PlaceViewHolder>() {
+class PlacesAdapter(private var places: MutableList<Place> = mutableListOf()) : RecyclerView.Adapter<PlacesAdapter.PlaceViewHolder>() {
 
     private var itemClickListener: OnItemClickListener? = null
 
     fun setData(newPlaces: List<Place>) {
-        places = newPlaces
+        places.clear()
+        places.addAll(newPlaces)
         notifyDataSetChanged()
+    }
+
+    fun addData(newPlaces: List<Place>) {
+        val startPos = places.size
+        places.addAll(newPlaces)
+        notifyItemRangeInserted(startPos, newPlaces.size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder {
