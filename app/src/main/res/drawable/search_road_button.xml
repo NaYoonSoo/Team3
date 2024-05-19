@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/rounded_edittext.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#80555555"/> <!-- 50% 투명도의 회색 -->
+    <corners android:radius="8dp"/> <!-- 둥근 모서리의 반지름 -->
+</shape>
