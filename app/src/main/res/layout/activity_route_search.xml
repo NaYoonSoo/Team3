@@ -18,22 +18,25 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#FFFFFF"
-        android:orientation="vertical"
         android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/map_view"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <EditText
             android:id="@+id/startLocation"
-            android:layout_width="match_parent"
+            android:layout_width="340dp"
             android:layout_height="0dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="10dp"
             android:layout_weight="1"
             android:background="@drawable/background_divider"
+            android:backgroundTint="#D2E1FF"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:hint="출발지를 입력하세요."
@@ -41,12 +44,13 @@
 
         <EditText
             android:id="@+id/endLocation"
-            android:layout_width="match_parent"
+            android:layout_width="340dp"
             android:layout_height="0dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="10dp"
             android:layout_weight="1"
             android:background="@drawable/background_divider"
+            android:backgroundTint="#FFE6F3"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:hint="도착지를 입력하세요."

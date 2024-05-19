@@ -5,6 +5,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
+    fun create() {
+        TODO("Not yet implemented")
+    }
+
     private const val BASE_URL = "https://openapi.naver.com/v1/"
     private const val BASE_URL_YOUR_API = "http://10.0.2.2:5000/"
 
