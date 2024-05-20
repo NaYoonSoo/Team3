@@ -6,13 +6,19 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ObstacleRetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:5000/"
+    // 에뮬레이터에서 사용할 경우
+    // private const val BASE_URL = "http://10.0.2.2:5000/"
+
+    // 실제 디바이스에서 사용할 경우
+    private const val BASE_URL = "http://172.20.10.3:5000/"
 
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)  // 연결 타임아웃 설정
         .writeTimeout(30, TimeUnit.SECONDS)    // 쓰기 타임아웃 설정
         .readTimeout(30, TimeUnit.SECONDS)     // 읽기 타임아웃 설정
         .build()
+
+
 
     val instance: ObstacleApiInterface by lazy {
         Retrofit.Builder()
@@ -22,8 +28,7 @@ object ObstacleRetrofitClient {
             .build()
             .create(ObstacleApiInterface::class.java)
     }
-
-
 }
+
 
 

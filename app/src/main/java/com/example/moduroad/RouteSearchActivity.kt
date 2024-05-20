@@ -125,7 +125,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         val apiService = RetrofitClient.yourApiInstance
         val request = PathRequest(latStart, lngStart, latEnd, lngEnd, type)
 
-        Log.d("RouteSearchActivity", "Sending path request with type: $currentType")
+        Log.d("RouteSearchActivity", "Sending path request with type: $currentType and request: $request")
 
         apiService.findPath(request).enqueue(object : Callback<RouteResponse> {
             override fun onResponse(call: Call<RouteResponse>, response: Response<RouteResponse>) {
@@ -144,6 +144,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
     }
+
 
     private fun updateRouteTime(time: String, distance: String) {
         val textView: TextView = findViewById(R.id.route_info)
