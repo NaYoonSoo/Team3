@@ -152,10 +152,21 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             marker.map = map
 
             Log.d("RouteSearchActivity", "Marker added at: ${marker.position}")
+
+            // 출발 마커와 도착 마커 둘 다 보일 수 있도록 영역 설정 및 카메라 조정
+            if (this::startMarker.isInitialized && this::endMarker.isInitialized) {
+                val bounds = LatLngBounds.Builder()
+                    .include(startMarker.position)
+                    .include(endMarker.position)
+                    .build()
+                val padding = 280 // 여백을 위한 패딩
+                map.moveCamera(CameraUpdate.fitBounds(bounds, padding))
+            }
         } ?: run {
             Log.e("RouteSearchActivity", "NaverMap is null")
         }
     }
+
 
     private fun checkBothLocationsSet() {
         if (startLocationEditText.text.isNotEmpty() && endLocationEditText.text.isNotEmpty()) {
