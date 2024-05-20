@@ -1,13 +1,31 @@
 package com.example.moduroad.model;
 
+import java.util.Collections;
 import java.util.List;
 
 public class RouteResponse {
     private List<List<Double>> route;
-    private String time; // 추가된 예상 소요 시간 프로퍼티
-    private String distance; // 거리도 String 타입으로 저장합니다.
+    private String time;
+    private String distance;
+    private List<Obstacle> obstacles; // 장애물 정보 추가
 
-    // Public getter를 추가하거나 접근 제어자를 변경하세요.
+    // Constructor with default values
+    public RouteResponse() {
+        this.route = Collections.emptyList();
+        this.time = "";
+        this.distance = "";
+        this.obstacles = Collections.emptyList();
+    }
+
+    // Getter and Setter for obstacles
+    public List<Obstacle> getObstacles() {
+        return obstacles;
+    }
+
+    public void setObstacles(List<Obstacle> obstacles) {
+        this.obstacles = obstacles;
+    }
+
     public List<List<Double>> getRoute() {
         return route;
     }
@@ -16,11 +34,10 @@ public class RouteResponse {
         return time;
     }
 
-
     public String getDistance() {
         return distance;
     }
-    // 필요한 경우, setter도 추가하세요.
+
     public void setRoute(List<List<Double>> route) {
         this.route = route;
     }
@@ -29,9 +46,7 @@ public class RouteResponse {
         this.time = time;
     }
 
-
     public void setDistance(String distance) {
         this.distance = distance;
     }
-
 }

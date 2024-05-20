@@ -1,9 +1,10 @@
-package com.example.moduroad
+package com.example.moduroad.obstacle
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
+import com.example.moduroad.R
 
 class AddObstacleActivity : AppCompatActivity() {
 
