@@ -25,7 +25,6 @@ class LocationInputActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var currentLocationButton: Button
     private lateinit var endLocationInput: SearchView
-    private lateinit var searchButton: Button
     private lateinit var resultsRecyclerView: RecyclerView
     private lateinit var adapter: PlacesAdapter
 
@@ -40,7 +39,6 @@ class LocationInputActivity : AppCompatActivity() {
 
         // Initialize views
         endLocationInput = findViewById(R.id.search_view)
-        searchButton = findViewById(R.id.searchButton)
         resultsRecyclerView = findViewById(R.id.resultsRecyclerView)
         currentLocationButton = findViewById(R.id.button_current_location)
 
@@ -53,16 +51,6 @@ class LocationInputActivity : AppCompatActivity() {
 
         // Initialize PlaceSearchService
         placeSearchService = PlaceSearchService(this, adapter)
-
-        // Search button click listener
-        searchButton.setOnClickListener {
-            val query = endLocationInput.query.toString()
-            if (query.isNotEmpty()) {
-                searchPlaces(query)
-            } else {
-                Toast.makeText(this, "Please enter a search query", Toast.LENGTH_SHORT).show()
-            }
-        }
 
         // SearchView query text listener
         endLocationInput.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
