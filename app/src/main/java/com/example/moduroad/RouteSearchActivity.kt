@@ -10,9 +10,10 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.moduroad.placeAPI.RetrofitClient
+import com.example.moduroad.model.Obstacle
 import com.example.moduroad.model.PathRequest
 import com.example.moduroad.model.RouteResponse
+import com.example.moduroad.placeAPI.RetrofitClient
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
@@ -27,6 +28,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
         private const val LOCATION_REQUEST_CODE_START = 1
         private const val LOCATION_REQUEST_CODE_END = 2
+        private const val DISTANCE_THRESHOLD = 50.0 // 50미터 이내의 장애물만 표시
     }
 
     private lateinit var startLocationEditText: EditText
@@ -111,7 +113,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
     private fun checkBothLocationsSet() {
         if (startLocationEditText.text.isNotEmpty() && endLocationEditText.text.isNotEmpty()) {
             val startLatLng = startLocationEditText.text.toString().split(",").map { it.trim().toDouble() }
@@ -119,7 +120,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             findPath(startLatLng[0], startLatLng[1], endLatLng[0], endLatLng[1], currentType)
         }
     }
-
 
     private fun findPath(latStart: Double, lngStart: Double, latEnd: Double, lngEnd: Double, type: String) {
         val apiService = RetrofitClient.yourApiInstance
@@ -131,8 +131,12 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onResponse(call: Call<RouteResponse>, response: Response<RouteResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.let {
+                        Log.d("RouteSearchActivity", "API response: ${it}")
                         drawRoute(it.route)
                         updateRouteTime(it.time, it.distance)
+                        val obstacles = it.obstacles ?: emptyList() // Null 체크
+                        Log.d("RouteSearchActivity", "Obstacles received: $obstacles") // 장애물 로그 추가
+                        displayObstacles(obstacles, it.route) // 경로와 함께 장애물 표시
                     }
                 } else {
                     Log.e("RouteSearchActivity", "Response not successful: ${response.errorBody()?.string()}")
@@ -144,6 +148,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
     }
+
 
 
     private fun updateRouteTime(time: String, distance: String) {
@@ -174,12 +179,61 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         currentPath = path
     }
 
+    private fun displayObstacles(obstacles: List<Obstacle>, routePoints: List<List<Double>>) {
+        val icon = OverlayImage.fromResource(R.drawable.ic_marker) // 아이콘을 한 번만 로드
+        val distanceThreshold = 50.0 // 50미터 이내의 장애물만 표시
+
+        Log.d("RouteSearchActivity", "Displaying obstacles. Total obstacles: ${obstacles.size}")
+
+        obstacles.forEach { obstacle ->
+            Log.d("RouteSearchActivity", "Obstacle type: ${obstacle.type}, points: ${obstacle.points}")
+            val points = obstacle.points ?: emptyList()
+            points.forEach { point ->
+                Log.d("RouteSearchActivity", "Checking obstacle point: $point")
+                val lat = point[1]
+                val lon = point[0]
+                val isNearRoute = routePoints.any { routePoint ->
+                    val distance = haversine(lat, lon, routePoint[1], routePoint[0])
+                    Log.d("RouteSearchActivity", "Distance to route point $routePoint: $distance meters")
+                    distance <= distanceThreshold
+                }
+                if (isNearRoute) {
+                    Log.d("RouteSearchActivity", "Obstacle near route. Adding marker at: ($lat, $lon)")
+                    if (naverMap != null) {
+                        Marker().apply {
+                            position = LatLng(lat, lon)
+                            this.icon = icon
+                            map = naverMap
+                            Log.d("RouteSearchActivity", "Marker added at: ($lat, $lon)")
+                        }
+                    } else {
+                        Log.e("RouteSearchActivity", "NaverMap is null, cannot add marker")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371e3 // 지구의 반경 (미터)
+        val phi1 = Math.toRadians(lat1)
+        val phi2 = Math.toRadians(lat2)
+        val deltaPhi = Math.toRadians(lat2 - lat1)
+        val deltaLambda = Math.toRadians(lon2 - lon1)
+
+        val a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+                Math.cos(phi1) * Math.cos(phi2) *
+                Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+        return R * c // 두 지점 간의 거리 (미터)
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && data != null) {
             val location = data.getStringExtra("location")
-            Log.d("RouteSearchActivity", "Received location: $location")  // 로그 추가
+            Log.d("RouteSearchActivity", "Received location: $location")
             if (location != null) {
                 val latLng = location.split(",").map { it.trim().toDouble() }
                 when (requestCode) {
@@ -196,13 +250,11 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         } else {
-            Log.d("RouteSearchActivity", "Failed to receive location or bad resultCode: $resultCode") // 실패 로그 추가
+            Log.d("RouteSearchActivity", "Failed to receive location or bad resultCode: $resultCode")
         }
     }
 
-
-
-    // 생명주기 관련 메소드들은 이전에 주어진 것처럼 클래스 내부에 위치합니다.
+    // 생명주기 관련 메소드들
     override fun onStart() {
         super.onStart()
         mapView.onStart()
