@@ -8,17 +8,17 @@
     app:layoutDescription="@xml/activity_location_input_scene"
     tools:context=".LocationInputActivity">
 
-
-    <EditText
+    <androidx.appcompat.widget.SearchView
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:layout_marginTop="140dp"
-        android:hint="end Location"
+        android:queryHint="End Location"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:iconifiedByDefault="false"  />
 
     <Button
         android:id="@+id/searchButton"

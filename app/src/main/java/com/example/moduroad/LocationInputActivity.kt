@@ -7,11 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
-import android.widget.SearchView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
@@ -19,17 +15,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moduroad.placeAPI.PlaceSearchService
-import com.example.moduroad.placeAPI.PlaceDataHandler
 import com.example.moduroad.placeAPI.PlacesAdapter
-import com.example.moduroad.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import androidx.appcompat.widget.SearchView
 
 class LocationInputActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var currentLocationButton: Button
-    private lateinit var endLocationInput: EditText
+    private lateinit var endLocationInput: SearchView
     private lateinit var searchButton: Button
     private lateinit var resultsRecyclerView: RecyclerView
     private lateinit var adapter: PlacesAdapter
@@ -52,7 +47,7 @@ class LocationInputActivity : AppCompatActivity() {
         // Set up RecyclerView
         resultsRecyclerView.layoutManager = LinearLayoutManager(this)
         adapter = PlacesAdapter { place ->
-            returnPlaceLocation(place.lat/10, place.lng/10)
+            returnPlaceLocation(place.lat / 10, place.lng / 10)
         }
         resultsRecyclerView.adapter = adapter
 
@@ -61,13 +56,30 @@ class LocationInputActivity : AppCompatActivity() {
 
         // Search button click listener
         searchButton.setOnClickListener {
-            val query = endLocationInput.text.toString()
+            val query = endLocationInput.query.toString()
             if (query.isNotEmpty()) {
                 searchPlaces(query)
             } else {
                 Toast.makeText(this, "Please enter a search query", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // SearchView query text listener
+        endLocationInput.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null && query.isNotEmpty()) {
+                    searchPlaces(query)
+                } else {
+                    Toast.makeText(this@LocationInputActivity, "Please enter a search query", Toast.LENGTH_SHORT).show()
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // No action needed
+                return true
+            }
+        })
 
         // Current location button click listener
         currentLocationButton.setOnClickListener {
@@ -153,4 +165,3 @@ class LocationInputActivity : AppCompatActivity() {
         }
     }
 }
-
