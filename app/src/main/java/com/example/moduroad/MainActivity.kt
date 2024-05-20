@@ -1,21 +1,24 @@
 package com.example.moduroad
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.moduroad.databinding.ActivityMainBinding
+import com.example.moduroad.obstacle.CaptureObstacleActivity
+import com.example.moduroad.placeAPI.PlaceSearchService
+import com.example.moduroad.placeAPI.PlacesAdapter
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
-import androidx.core.app.ActivityCompat
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.appcompat.widget.SearchView
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.moduroad.databinding.ActivityMainBinding
-import com.example.moduroad.placeAPI.PlaceSearchService
-import com.example.moduroad.placeAPI.PlacesAdapter
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,22 +34,54 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = PlacesAdapter()
+        adapter = PlacesAdapter(mutableListOf()) { place ->
+            Log.d("MainActivity", "Selected place: ${place.lat}, ${place.lng}")
+            // 필요한 경우 선택된 장소의 위치를 사용하여 다른 작업 수행
+        }
+
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
         placeSearchService = PlaceSearchService(this, adapter)
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        getCurrentLocation()
+
+        var currentPage = 1
+        var currentQuery = ""
+
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    placeSearchService.searchPlaces(it, 5, 1, "random", adapter)
+                    currentQuery = it
+                    currentPage = 1
+                    currentLocation.let { location ->
+                        Log.d("MainActivity", "Using location: ${location.latitude}, ${location.longitude}")
+                        placeSearchService.searchPlaces(it, 5, currentPage, "random", location.latitude, location.longitude)
+                    }
                 }
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 return false
+            }
+        })
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                if (!placeSearchService.isLoading && totalItemCount <= (lastVisibleItem + 5)) {
+                    currentPage++
+                    currentLocation.let { location ->
+                        placeSearchService.searchPlaces(currentQuery, 5, currentPage, "random", location.latitude, location.longitude)
+                    }
+                }
             }
         })
 
@@ -108,8 +143,8 @@ class MainActivity : AppCompatActivity() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.menu_add_obstacle -> {
-                        // AddObstacleActivity로 이동
-                        val intent = Intent(this@MainActivity, AddObstacleActivity::class.java)
+                        // CaptureObstacleActivity로 이동
+                        val intent = Intent(this@MainActivity, CaptureObstacleActivity::class.java)
                         startActivity(intent)
                         true
                     }

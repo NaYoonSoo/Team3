@@ -1,19 +1,25 @@
 package com.example.moduroad
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.graphics.Color
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.moduroad.model.Obstacle
 import com.example.moduroad.model.PathRequest
 import com.example.moduroad.model.RouteResponse
 import com.example.moduroad.placeAPI.RetrofitClient
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
@@ -39,6 +45,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var endMarker: Marker
     private var currentPath: PolylineOverlay? = null
     private var currentType: String = "normal" // 기본으로 'normal' 타입 설정
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +54,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         startLocationEditText = findViewById(R.id.startLocation)
         endLocationEditText = findViewById(R.id.endLocation)
         mapView = findViewById(R.id.map_view)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -81,6 +89,37 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             icon = OverlayImage.fromResource(R.drawable.location_end)
         }
         setupMap()
+
+        // Get destination coordinates from intent
+        val destinationLat = intent.getDoubleExtra("destination_lat", 0.0)
+        val destinationLng = intent.getDoubleExtra("destination_lng", 0.0)
+
+        if (destinationLat != 0.0 && destinationLng != 0.0) {
+            Log.d("RouteSearchActivity", "Destination set to: $destinationLat, $destinationLng")
+            endLocationEditText.setText("$destinationLat, $destinationLng")
+            moveToLocationAndAddMarker(destinationLat, destinationLng, isStartLocation = false)
+            setStartLocationToCurrentLocation()
+        } else {
+            Log.d("RouteSearchActivity", "No destination coordinates provided")
+        }
+    }
+
+    private fun setStartLocationToCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_REQUEST_CODE_START)
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location?.let {
+                val currentLat = it.latitude
+                val currentLng = it.longitude
+                startLocationEditText.setText("$currentLat, $currentLng")
+                moveToLocationAndAddMarker(currentLat, currentLng, isStartLocation = true)
+                checkBothLocationsSet()
+            } ?: run {
+                Toast.makeText(this, "Cannot fetch current location.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupMap() {
@@ -96,6 +135,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun moveToLocationAndAddMarker(lat: Double, lng: Double, isStartLocation: Boolean) {
+        Log.d("RouteSearchActivity", "moveToLocationAndAddMarker: lat=$lat, lng=$lng, isStartLocation=$isStartLocation")
         naverMap?.let { map ->
             val location = LatLng(lat, lng)
             map.moveCamera(CameraUpdate.scrollTo(location))
@@ -110,8 +150,23 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
             marker.position = location
             marker.map = map
+
+            Log.d("RouteSearchActivity", "Marker added at: ${marker.position}")
+
+            // 출발 마커와 도착 마커 둘 다 보일 수 있도록 영역 설정 및 카메라 조정
+            if (this::startMarker.isInitialized && this::endMarker.isInitialized) {
+                val bounds = LatLngBounds.Builder()
+                    .include(startMarker.position)
+                    .include(endMarker.position)
+                    .build()
+                val padding = 280 // 여백을 위한 패딩
+                map.moveCamera(CameraUpdate.fitBounds(bounds, padding))
+            }
+        } ?: run {
+            Log.e("RouteSearchActivity", "NaverMap is null")
         }
     }
+
 
     private fun checkBothLocationsSet() {
         if (startLocationEditText.text.isNotEmpty() && endLocationEditText.text.isNotEmpty()) {
@@ -148,8 +203,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
     }
-
-
 
     private fun updateRouteTime(time: String, distance: String) {
         val textView: TextView = findViewById(R.id.route_info)
@@ -219,7 +272,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         val phi1 = Math.toRadians(lat1)
         val phi2 = Math.toRadians(lat2)
         val deltaPhi = Math.toRadians(lat2 - lat1)
-        val deltaLambda = Math.toRadians(lon2 - lon1)
+        val deltaLambda = Math.toRadians(lon1 - lon2)
 
         val a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
                 Math.cos(phi1) * Math.cos(phi2) *

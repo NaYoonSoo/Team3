@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -25,7 +24,6 @@ class LocationInputActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var currentLocationButton: Button
     private lateinit var endLocationInput: SearchView
-    private lateinit var searchButton: Button
     private lateinit var resultsRecyclerView: RecyclerView
     private lateinit var adapter: PlacesAdapter
 
@@ -33,6 +31,8 @@ class LocationInputActivity : AppCompatActivity() {
     private val LOCATION_REQUEST_CODE = 1
 
     private lateinit var placeSearchService: PlaceSearchService
+    private var destinationLat: Double? = null
+    private var destinationLng: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,28 +40,26 @@ class LocationInputActivity : AppCompatActivity() {
 
         // Initialize views
         endLocationInput = findViewById(R.id.search_view)
-        searchButton = findViewById(R.id.searchButton)
         resultsRecyclerView = findViewById(R.id.resultsRecyclerView)
         currentLocationButton = findViewById(R.id.button_current_location)
 
         // Set up RecyclerView
         resultsRecyclerView.layoutManager = LinearLayoutManager(this)
         adapter = PlacesAdapter { place ->
-            returnPlaceLocation(place.lat / 10, place.lng / 10)
+            returnPlaceLocation(place.lat, place.lng)
         }
         resultsRecyclerView.adapter = adapter
 
         // Initialize PlaceSearchService
         placeSearchService = PlaceSearchService(this, adapter)
 
-        // Search button click listener
-        searchButton.setOnClickListener {
-            val query = endLocationInput.query.toString()
-            if (query.isNotEmpty()) {
-                searchPlaces(query)
-            } else {
-                Toast.makeText(this, "Please enter a search query", Toast.LENGTH_SHORT).show()
-            }
+        // Get destination coordinates from intent
+        destinationLat = intent.getDoubleExtra("destination_lat", 0.0)
+        destinationLng = intent.getDoubleExtra("destination_lng", 0.0)
+
+        if (destinationLat != 0.0 && destinationLng != 0.0) {
+            Toast.makeText(this, "Destination set to: $destinationLat, $destinationLng", Toast.LENGTH_SHORT).show()
+            returnPlaceLocation(destinationLat!!, destinationLng!!)
         }
 
         // SearchView query text listener
@@ -119,7 +117,7 @@ class LocationInputActivity : AppCompatActivity() {
             return
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: android.location.Location? ->
             if (location != null) {
                 val locationResult = "${location.latitude}, ${location.longitude}"
                 val returnIntent = Intent().apply {
@@ -134,7 +132,7 @@ class LocationInputActivity : AppCompatActivity() {
     }
 
     private fun returnPlaceLocation(latitude: Double, longitude: Double) {
-        val locationResult = "$latitude, $longitude"
+        val locationResult = "${latitude / 10}, ${longitude / 10}"
         val returnIntent = Intent().apply {
             putExtra("location", locationResult)
         }
