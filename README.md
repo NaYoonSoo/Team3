@@ -11,6 +11,7 @@
 
 ### 개발 환경
 Frontend : Android Studio
+
 Backend : Flask/Firebase
 ![image](https://github.com/NaYoonSoo/Team3/assets/124981649/7f54b01d-cb49-4ec5-8093-e9662afe700f)
   
