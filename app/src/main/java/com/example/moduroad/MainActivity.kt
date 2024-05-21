@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.PopupMenu
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
@@ -35,8 +36,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         adapter = PlacesAdapter(mutableListOf()) { place ->
-            Log.d("MainActivity", "Selected place: ${place.lat}, ${place.lng}")
-            // 필요한 경우 선택된 장소의 위치를 사용하여 다른 작업 수행
+            showDestinationConfirmationDialog(place.lat, place.lng)
         }
 
         binding.recyclerView.adapter = adapter
@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity() {
                         Log.d("MainActivity", "Using location: ${location.latitude}, ${location.longitude}")
                         placeSearchService.searchPlaces(it, 5, currentPage, "random", location.latitude, location.longitude)
                     }
+                    binding.recyclerView.visibility = View.VISIBLE
+                    binding.buttonCancelSearch.visibility = View.VISIBLE
                 }
                 return true
             }
@@ -98,6 +100,7 @@ class MainActivity : AppCompatActivity() {
 
         getCurrentLocation()
         setupMenuButton()
+        setupCancelButton()
     }
 
     private fun getCurrentLocation() {
@@ -151,6 +154,28 @@ class MainActivity : AppCompatActivity() {
                     else -> false
                 }
             }
+            show()
+        }
+    }
+
+    private fun setupCancelButton() {
+        binding.buttonCancelSearch.setOnClickListener {
+            binding.recyclerView.visibility = View.GONE
+            binding.buttonCancelSearch.visibility = View.GONE
+        }
+    }
+
+    private fun showDestinationConfirmationDialog(lat: Double, lng: Double) {
+        AlertDialog.Builder(this).apply {
+            setTitle("목적지로 선택하시겠습니까?")
+            setPositiveButton("바로 출발") { _, _ ->
+                val intent = Intent(this@MainActivity, RouteSearchActivity::class.java).apply {
+                    putExtra("destination_lat", lat/10)
+                    putExtra("destination_lng", lng/10)
+                }
+                startActivity(intent)
+            }
+            setNegativeButton("아니오", null)
             show()
         }
     }
