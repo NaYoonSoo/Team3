@@ -15,5 +15,5 @@ interface NaverAPI {
         @Query("start") start: Int,
         @Query("sort") sort: String,
 
-    ): Call<SearchResponse>
+        ): Call<SearchResponse>
 }

@@ -14,7 +14,7 @@ data class Item(
     val sort: String,
     val mapx: Double,
     val mapy: Double // This should match the actual response property name for latitude
-       // This should match the actual response property name for longitude
+    // This should match the actual response property name for longitude
 )
 data class Place(
     val title: String,
@@ -26,4 +26,3 @@ data class Place(
     val lng: Double,
     val lat: Double
 )
-

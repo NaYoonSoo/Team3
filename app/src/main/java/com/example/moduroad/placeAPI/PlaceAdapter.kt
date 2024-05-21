@@ -1,19 +1,31 @@
 package com.example.moduroad.placeAPI
 
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moduroad.R
+interface PlaceDataHandler {
+    fun setData(newPlaces: List<Place>)
+    fun addData(newPlaces: List<Place>)
+}
+class PlacesAdapter(
+    private var places: MutableList<Place> = mutableListOf(),
+    private val onPlaceSelected: (Place) -> Unit
+) : RecyclerView.Adapter<PlacesAdapter.PlaceViewHolder>(), PlaceDataHandler {
 
-class PlacesAdapter(private var places: List<Place> = listOf()) : RecyclerView.Adapter<PlacesAdapter.PlaceViewHolder>() {
-
-    private var itemClickListener: OnItemClickListener? = null
-
-    fun setData(newPlaces: List<Place>) {
-        places = newPlaces
+    override fun setData(newPlaces: List<Place>) {
+        places.clear()
+        places.addAll(newPlaces)
         notifyDataSetChanged()
+    }
+
+    override fun addData(newPlaces: List<Place>) {
+        val startPosition = places.size
+        places.addAll(newPlaces)
+        notifyItemRangeInserted(startPosition, newPlaces.size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder {
@@ -22,7 +34,7 @@ class PlacesAdapter(private var places: List<Place> = listOf()) : RecyclerView.A
             itemView.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    itemClickListener?.onClick(it, position)
+                    onPlaceSelected(places[position])
                 }
             }
         }
@@ -44,13 +56,5 @@ class PlacesAdapter(private var places: List<Place> = listOf()) : RecyclerView.A
             roadAddressTextView.text = place.roadAddress // 도로명
             addressTextView.text = place.address // 지번
         }
-    }
-
-    interface OnItemClickListener {
-        fun onClick(v: View, position: Int)
-    }
-
-    fun setItemClickListener(onItemClickListener: OnItemClickListener) {
-        this.itemClickListener = onItemClickListener
     }
 }
