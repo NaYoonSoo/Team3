@@ -46,6 +46,8 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private var currentPath: PolylineOverlay? = null
     private var currentType: String = "normal" // 기본으로 'normal' 타입 설정
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var startLatLng: List<Double>? = null
+    private var endLatLng: List<Double>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,9 +96,10 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         // Get destination coordinates from intent
         val destinationLat = intent.getDoubleExtra("destination_lat", 0.0)
         val destinationLng = intent.getDoubleExtra("destination_lng", 0.0)
+        val destinationTitle = intent.getStringExtra("destinationTitle")
 
         if (destinationLat != 0.0 && destinationLng != 0.0) {
-            endLocationEditText.setText("$destinationLat, $destinationLng")
+            endLocationEditText.setText("destinationTitle")
             moveToLocationAndAddMarker(destinationLat, destinationLng, isStartLocation = false)
             setStartLocationToCurrentLocation()
         }
@@ -111,6 +114,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             location?.let {
                 val currentLat = it.latitude
                 val currentLng = it.longitude
+
                 startLocationEditText.setText("$currentLat, $currentLng")
                 moveToLocationAndAddMarker(currentLat, currentLng, isStartLocation = true)
                 checkBothLocationsSet()
@@ -159,10 +163,8 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun checkBothLocationsSet() {
-        if (startLocationEditText.text.isNotEmpty() && endLocationEditText.text.isNotEmpty()) {
-            val startLatLng = startLocationEditText.text.toString().split(",").map { it.trim().toDouble() }
-            val endLatLng = endLocationEditText.text.toString().split(",").map { it.trim().toDouble() }
-            findPath(startLatLng[0], startLatLng[1], endLatLng[0], endLatLng[1])
+        if (startLatLng != null && endLatLng != null) {
+            findPath(startLatLng!![0], startLatLng!![1], endLatLng!![0], endLatLng!![1])
         }
     }
 
@@ -211,7 +213,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val pathColor = when (currentType) {
             "normal" -> Color.BLUE          // 기본 경로는 파란색
-            "elderly" -> Color.GRAY         // 노약자 경로는 회색
+            "elderly" -> Color.GREEN         // 노약자 경로는 회색
             "wheelchair" -> Color.RED       // 휠체어 경로는 빨간색
             else -> Color.BLUE              // 기본값
         }
@@ -297,16 +299,26 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && data != null) {
             val location = data.getStringExtra("location")
+            val title = data.getStringExtra("title")
+            val fromMapSelection = data.getBooleanExtra("fromMapSelection", false)
+            val fromCurrentLocation = data.getBooleanExtra("fromCurrentLocation", false)
+
             if (location != null) {
                 val latLng = location.split(",").map { it.trim().toDouble() }
+                val displayText = when {
+                    fromMapSelection || fromCurrentLocation -> location // 지도 선택 또는 현재 위치일 경우 위도, 경도로 표시
+                    else -> title ?: location // 검색 결과일 경우 제목을 표시, 제목이 없으면 위도, 경도로 표시
+                }
                 when (requestCode) {
                     LOCATION_REQUEST_CODE_START -> {
-                        startLocationEditText.setText(location)
+                        startLocationEditText.setText(displayText)
+                        startLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = true)
                         checkBothLocationsSet()
                     }
                     LOCATION_REQUEST_CODE_END -> {
-                        endLocationEditText.setText(location)
+                        endLocationEditText.setText(displayText)
+                        endLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = false)
                         checkBothLocationsSet()
                     }
@@ -314,6 +326,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
 
     // 생명주기 관련 메소드들
     override fun onStart() {
