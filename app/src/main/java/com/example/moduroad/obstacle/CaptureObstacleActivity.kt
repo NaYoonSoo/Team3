@@ -2,7 +2,6 @@ package com.example.moduroad.obstacle
 
 import android.Manifest
 import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -12,10 +11,12 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -43,6 +44,7 @@ class CaptureObstacleActivity : AppCompatActivity() {
     private lateinit var imageView: ImageView
     private lateinit var captureButton: Button
     private lateinit var registerButton: Button
+    private lateinit var loadingOverlay: FrameLayout
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val PERMISSION_REQUEST_CODE = 100
     private val LOCATION_PERMISSION_REQUEST_CODE = 101
@@ -57,6 +59,7 @@ class CaptureObstacleActivity : AppCompatActivity() {
         imageView = findViewById(R.id.imageView_captured)
         captureButton = findViewById(R.id.button_action)
         registerButton = findViewById(R.id.button_register)
+        loadingOverlay = findViewById(R.id.loading_overlay)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -69,6 +72,7 @@ class CaptureObstacleActivity : AppCompatActivity() {
         registerButton.setOnClickListener {
             if (currentLatitude != null && currentLongitude != null) {
                 Log.d("CaptureActivity", "Register button clicked: Latitude (${currentLatitude}), Longitude (${currentLongitude})")
+                showLoadingOverlay()
                 uploadObstacle(imageUri, currentLatitude!!, currentLongitude!!)
             } else {
                 Toast.makeText(this, "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
@@ -194,6 +198,7 @@ class CaptureObstacleActivity : AppCompatActivity() {
         call.enqueue(object : Callback<ObstacleResponse> {
             override fun onResponse(call: Call<ObstacleResponse>, response: Response<ObstacleResponse>) {
                 Log.d("CaptureActivity", "API call successful: ${response.isSuccessful}")
+                hideLoadingOverlay()
                 if (response.isSuccessful) {
                     val result = response.body()
                     Log.d("CaptureActivity", "API response body: $result")
@@ -223,6 +228,7 @@ class CaptureObstacleActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<ObstacleResponse>, t: Throwable) {
                 Log.e("CaptureActivity", "API call failed", t)
+                hideLoadingOverlay()
                 runOnUiThread {
                     Toast.makeText(this@CaptureObstacleActivity, "네트워크 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
                 }
@@ -231,10 +237,25 @@ class CaptureObstacleActivity : AppCompatActivity() {
     }
 
     private fun showConfirmationDialog(obstacleType: String, latitude: Double, longitude: Double) {
+        val displayType = when (obstacleType) {
+            "slope" -> "경사로"
+            "stair_steep" -> "계단"
+            "bollard" -> "볼라드"
+            "crosswalk_curb", "sidewalk_curb" -> "연석"
+            else -> "장애물"
+        }
+
+        val message = if (obstacleType in listOf("slope", "bollard")) {
+            "${displayType}를 등록하시겠습니까?"
+        } else {
+            "${displayType}을 등록하시겠습니까?"
+        }
+
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("장애물을 등록하시겠습니까?")
+        builder.setMessage(message)
             .setPositiveButton("예") { dialog, id ->
                 // 사용자가 확인한 경우 서버에 등록 요청 보내기
+                showLoadingOverlay()
                 registerObstacle(obstacleType, latitude, longitude)
             }
             .setNegativeButton("아니오") { dialog, id ->
@@ -249,11 +270,12 @@ class CaptureObstacleActivity : AppCompatActivity() {
         val call = ObstacleRetrofitClient.instance.registerObstacle(obstacleRequest)
         call.enqueue(object : Callback<RegisterResponse> {
             override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
+                hideLoadingOverlay()
                 if (response.isSuccessful) {
                     val result = response.body()
                     if (result != null && result.success) {
                         runOnUiThread {
-                            Toast.makeText(this@CaptureObstacleActivity, "${obstacleType}이(가) 등록되었습니다.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@CaptureObstacleActivity, "장애물이 등록되었습니다.", Toast.LENGTH_LONG).show()
                         }
                     } else {
                         runOnUiThread {
@@ -268,10 +290,19 @@ class CaptureObstacleActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
+                hideLoadingOverlay()
                 runOnUiThread {
                     Toast.makeText(this@CaptureObstacleActivity, "네트워크 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
                 }
             }
         })
+    }
+
+    private fun showLoadingOverlay() {
+        loadingOverlay.visibility = View.VISIBLE
+    }
+
+    private fun hideLoadingOverlay() {
+        loadingOverlay.visibility = View.GONE
     }
 }
