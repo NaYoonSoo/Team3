@@ -60,12 +60,13 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         mapView.getMapAsync(this)
 
         findViewById<RadioGroup>(R.id.transportOptions).setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.radio_normal_route -> currentType = "normal"
-                R.id.radio_elderly_route -> currentType = "elderly"
-                R.id.radio_special_route -> currentType = "wheelchair"
+            currentType = when (checkedId) {
+                R.id.radio_normal_route -> "normal"
+                R.id.radio_elderly_route -> "elderly"
+                R.id.radio_special_route -> "wheelchair"
+                else -> "normal"
             }
-            Log.d("RouteSearchActivity", "Type changed to: $currentType")
+            Log.d("RouteSearchActivity", "Radio button checked, type changed to: $currentType")
             checkBothLocationsSet() // Type 변경 시 경로 검색을 트리거합니다.
         }
 
@@ -95,12 +96,9 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         val destinationLng = intent.getDoubleExtra("destination_lng", 0.0)
 
         if (destinationLat != 0.0 && destinationLng != 0.0) {
-            Log.d("RouteSearchActivity", "Destination set to: $destinationLat, $destinationLng")
             endLocationEditText.setText("$destinationLat, $destinationLng")
             moveToLocationAndAddMarker(destinationLat, destinationLng, isStartLocation = false)
             setStartLocationToCurrentLocation()
-        } else {
-            Log.d("RouteSearchActivity", "No destination coordinates provided")
         }
     }
 
@@ -135,23 +133,18 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun moveToLocationAndAddMarker(lat: Double, lng: Double, isStartLocation: Boolean) {
-        Log.d("RouteSearchActivity", "moveToLocationAndAddMarker: lat=$lat, lng=$lng, isStartLocation=$isStartLocation")
         naverMap?.let { map ->
             val location = LatLng(lat, lng)
             map.moveCamera(CameraUpdate.scrollTo(location))
 
             val marker = if (isStartLocation) {
-                if (!this::startMarker.isInitialized) startMarker = Marker()
                 startMarker
             } else {
-                if (!this::endMarker.isInitialized) endMarker = Marker()
                 endMarker
             }
 
             marker.position = location
             marker.map = map
-
-            Log.d("RouteSearchActivity", "Marker added at: ${marker.position}")
 
             // 출발 마커와 도착 마커 둘 다 보일 수 있도록 영역 설정 및 카메라 조정
             if (this::startMarker.isInitialized && this::endMarker.isInitialized) {
@@ -162,35 +155,35 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 val padding = 280 // 여백을 위한 패딩
                 map.moveCamera(CameraUpdate.fitBounds(bounds, padding))
             }
-        } ?: run {
-            Log.e("RouteSearchActivity", "NaverMap is null")
         }
     }
-
 
     private fun checkBothLocationsSet() {
         if (startLocationEditText.text.isNotEmpty() && endLocationEditText.text.isNotEmpty()) {
             val startLatLng = startLocationEditText.text.toString().split(",").map { it.trim().toDouble() }
             val endLatLng = endLocationEditText.text.toString().split(",").map { it.trim().toDouble() }
-            findPath(startLatLng[0], startLatLng[1], endLatLng[0], endLatLng[1], currentType)
+            findPath(startLatLng[0], startLatLng[1], endLatLng[0], endLatLng[1])
         }
     }
 
-    private fun findPath(latStart: Double, lngStart: Double, latEnd: Double, lngEnd: Double, type: String) {
+    private fun findPath(latStart: Double, lngStart: Double, latEnd: Double, lngEnd: Double) {
         val apiService = RetrofitClient.yourApiInstance
-        val request = PathRequest(latStart, lngStart, latEnd, lngEnd, type)
+        val request = PathRequest(latStart, lngStart, latEnd, lngEnd, currentType) // currentType 사용
 
         Log.d("RouteSearchActivity", "Sending path request with type: $currentType and request: $request")
+
+        // 기존 경로 및 장애물 마커 제거
+        currentPath?.map = null
+        obstacleMarkers.forEach { it.map = null }
+        obstacleMarkers.clear()
 
         apiService.findPath(request).enqueue(object : Callback<RouteResponse> {
             override fun onResponse(call: Call<RouteResponse>, response: Response<RouteResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        Log.d("RouteSearchActivity", "API response: ${it}")
                         drawRoute(it.route)
                         updateRouteTime(it.time, it.distance)
                         val obstacles = it.obstacles ?: emptyList() // Null 체크
-                        Log.d("RouteSearchActivity", "Obstacles received: $obstacles") // 장애물 로그 추가
                         displayObstacles(obstacles, it.route) // 경로와 함께 장애물 표시
                     }
                 } else {
@@ -204,12 +197,13 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
+
     private fun updateRouteTime(time: String, distance: String) {
         val textView: TextView = findViewById(R.id.route_info)
         val background = ContextCompat.getDrawable(this, R.drawable.border)
         textView.background = background
         val textToShow = "⏰소요시간: $time (\uD83C\uDFF4 $distance)"
-        findViewById<TextView>(R.id.route_info).text = textToShow
+        textView.text = textToShow
     }
 
     private fun drawRoute(routePoints: List<List<Double>>) {
@@ -231,9 +225,12 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         path.map = naverMap
         currentPath = path
     }
-
+    private var obstacleMarkers: MutableList<Marker> = mutableListOf()
     private fun displayObstacles(obstacles: List<Obstacle>, routePoints: List<List<Double>>) {
-        val icon = OverlayImage.fromResource(R.drawable.ic_marker) // 아이콘을 한 번만 로드
+        // 기존 장애물 마커 제거
+        obstacleMarkers.forEach { it.map = null }
+        obstacleMarkers.clear()
+
         val distanceThreshold = 50.0 // 50미터 이내의 장애물만 표시
 
         Log.d("RouteSearchActivity", "Displaying obstacles. Total obstacles: ${obstacles.size}")
@@ -252,13 +249,24 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 if (isNearRoute) {
                     Log.d("RouteSearchActivity", "Obstacle near route. Adding marker at: ($lat, $lon)")
+
+                    // 장애물 타입에 따라 아이콘 선택
+                    val icon = when (obstacle.type) {
+                        "slope" -> OverlayImage.fromResource(R.drawable.baseline_arrow_drop_up_24)
+                        "stair_steep" -> OverlayImage.fromResource(R.drawable.baseline_stairs_24)
+                        "bollard" -> OverlayImage.fromResource(R.drawable.baseline_bolt_24)
+                        "crosswalk_curb", "sidewalk_curb" -> OverlayImage.fromResource(R.drawable.baseline_stop_24)
+                        else -> OverlayImage.fromResource(R.drawable.ic_marker) // 기본 아이콘
+                    }
+
                     if (naverMap != null) {
-                        Marker().apply {
+                        val marker = Marker().apply {
                             position = LatLng(lat, lon)
                             this.icon = icon
                             map = naverMap
                             Log.d("RouteSearchActivity", "Marker added at: ($lat, $lon)")
                         }
+                        obstacleMarkers.add(marker)
                     } else {
                         Log.e("RouteSearchActivity", "NaverMap is null, cannot add marker")
                     }
@@ -267,12 +275,15 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
+
+
     private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val R = 6371e3 // 지구의 반경 (미터)
         val phi1 = Math.toRadians(lat1)
         val phi2 = Math.toRadians(lat2)
         val deltaPhi = Math.toRadians(lat2 - lat1)
-        val deltaLambda = Math.toRadians(lon1 - lon2)
+        val deltaLambda = Math.toRadians(lon2 - lon1)
 
         val a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
                 Math.cos(phi1) * Math.cos(phi2) *
@@ -286,7 +297,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && data != null) {
             val location = data.getStringExtra("location")
-            Log.d("RouteSearchActivity", "Received location: $location")
             if (location != null) {
                 val latLng = location.split(",").map { it.trim().toDouble() }
                 when (requestCode) {
@@ -302,8 +312,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
             }
-        } else {
-            Log.d("RouteSearchActivity", "Failed to receive location or bad resultCode: $resultCode")
         }
     }
 
