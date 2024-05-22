@@ -65,8 +65,14 @@
         android:id="@+id/button_cancel_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:text="지우기"
+        android:layout_marginEnd="4dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#FFB729"
+        android:maxLines="1"
+        android:padding="8dp"
+        android:text="❌ 지우기"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchView" />
@@ -97,7 +103,7 @@
             android:id="@+id/elevator_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="16dp"
             android:layout_weight="1"
             android:elevation="4dp"
             android:paddingStart="-10dp"
@@ -111,15 +117,15 @@
             app:iconPadding="1dp"
             app:iconSize="23dp"
             app:iconTint="#4E4E4E"
-            app:rippleColor="#2D5AFF"
-            app:strokeColor="#C3C3C3"
+            app:rippleColor="#787878"
+            app:strokeColor="#FFFFFF"
             app:strokeWidth="1dp" />
         <!-- 에스컬레이터 버튼 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/escalator_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="16dp"
             android:layout_weight="1"
             android:paddingStart="-10dp"
             android:paddingEnd="-10dp"
@@ -132,8 +138,8 @@
             app:iconPadding="1dp"
             app:iconSize="23dp"
             app:iconTint="#38D85B"
-            app:rippleColor="#2D5AFF"
-            app:strokeColor="#C3C3C3"
+            app:rippleColor="#787878"
+            app:strokeColor="#FFFFFF"
             app:strokeWidth="1dp" />
 
         <!-- 장애인용 주차장 버튼 -->
@@ -141,7 +147,7 @@
             android:id="@+id/parking_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="0dp"
             android:layout_weight="1"
             android:paddingStart="-10dp"
             android:paddingEnd="-10dp"
@@ -154,8 +160,8 @@
             app:iconPadding="1dp"
             app:iconSize="23dp"
             app:iconTint="#0040FF"
-            app:rippleColor="#2D5AFF"
-            app:strokeColor="#C3C3C3"
+            app:rippleColor="#787878"
+            app:strokeColor="#FFFFFF"
             app:strokeWidth="1dp" />
 
     </LinearLayout>
