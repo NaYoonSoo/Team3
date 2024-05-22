@@ -252,9 +252,9 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     // 장애물 타입에 따라 아이콘 선택
                     val icon = when (obstacle.type) {
-                        "slope" -> OverlayImage.fromResource(R.drawable.baseline_arrow_drop_up_24)
-                        "stair_steep" -> OverlayImage.fromResource(R.drawable.baseline_stairs_24)
-                        "bollard" -> OverlayImage.fromResource(R.drawable.baseline_bolt_24)
+                        "slope" -> OverlayImage.fromResource(R.drawable.rudtkfh_new)
+                        "stair_steep" -> OverlayImage.fromResource(R.drawable.stair_new)
+                        "bollard" -> OverlayImage.fromResource(R.drawable.bollard_new)
                         "crosswalk_curb", "sidewalk_curb" -> OverlayImage.fromResource(R.drawable.baseline_stop_24)
                         else -> OverlayImage.fromResource(R.drawable.ic_marker) // 기본 아이콘
                     }
