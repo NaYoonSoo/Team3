@@ -8,7 +8,7 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.NaverMap
-import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.LocationOverlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -27,7 +27,7 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var locationRequest: LocationRequest? = null
     private var locationCallback: LocationCallback? = null
-    private var currentMarker: Marker? = null
+    private var currentMarker: LocationOverlay? = null
     lateinit var naverMap: NaverMap
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
     var firebaseDataManager: FirebaseDataManager? = null
@@ -53,8 +53,8 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
-        naverMap.locationOverlay.isVisible = false
-        naverMap.uiSettings.isLocationButtonEnabled = true
+        naverMap.locationOverlay.isVisible = true
+        naverMap.uiSettings.isLocationButtonEnabled = true  // 현재 위치 버튼 활성화
         naverMap.locationSource = locationSource
 
         setupMap()
@@ -63,7 +63,8 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
         updateCurrentLocationAndMoveCamera()  // Move camera to current location at start
         startLocationUpdates()
 
-
+        // 현재 위치 버튼 기능을 프로그래밍적으로 수행
+        triggerCurrentLocation()
     }
 
     private fun setupMap() {
@@ -88,15 +89,12 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.locations.lastOrNull()?.let { location ->
                     val newLatLng = LatLng(location.latitude, location.longitude)
-                    if (currentMarker == null) {
-                        currentMarker = Marker().apply {
-                            position = newLatLng
-                            map = naverMap
-                        }
-                    } else {
-                        currentMarker!!.position = newLatLng
+                    // 위치 오버레이 업데이트
+                    naverMap.locationOverlay.run {
+                        isVisible = true
+                        position = newLatLng
+                        bearing = location.bearing
                     }
-                    // No camera movement here
                 }
             }
         }
@@ -126,13 +124,11 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
             location?.let {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
                 naverMap.moveCamera(CameraUpdate.scrollTo(currentLatLng))
-                if (currentMarker == null) {
-                    currentMarker = Marker().apply {
-                        position = currentLatLng
-                        map = naverMap
-                    }
-                } else {
-                    currentMarker!!.position = currentLatLng
+                // 위치 오버레이 초기화
+                naverMap.locationOverlay.run {
+                    isVisible = true
+                    position = currentLatLng
+                    bearing = location.bearing
                 }
             }
         }
@@ -172,6 +168,38 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
         }
     }
 
+    private fun triggerCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location?.let {
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+                naverMap.moveCamera(CameraUpdate.scrollTo(currentLatLng))
+                naverMap.locationOverlay.run {
+                    isVisible = true
+                    position = currentLatLng
+                    bearing = location.bearing
+                }
+            }
+        }
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -198,5 +226,3 @@ class NaverMapFragment : MapFragment(), OnMapReadyCallback {
         }
     }
 }
-
-

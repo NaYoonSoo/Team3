@@ -29,6 +29,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import com.naver.maps.map.overlay.OverlayImage
+import com.naver.maps.map.util.FusedLocationSource
 
 class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
@@ -103,6 +104,11 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             moveToLocationAndAddMarker(destinationLat, destinationLng, isStartLocation = false)
             setStartLocationToCurrentLocation()
         }
+
+        // 현재 위치 버튼 활성화 및 초기 위치 설정
+        naverMap.locationSource = FusedLocationSource(this, LOCATION_REQUEST_CODE_START)
+        naverMap.uiSettings.isLocationButtonEnabled = true
+        triggerCurrentLocation()
     }
 
     private fun setStartLocationToCurrentLocation() {
@@ -199,7 +205,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-
     private fun updateRouteTime(time: String, distance: String) {
         val textView: TextView = findViewById(R.id.route_info)
         val background = ContextCompat.getDrawable(this, R.drawable.border)
@@ -227,6 +232,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         path.map = naverMap
         currentPath = path
     }
+
     private var obstacleMarkers: MutableList<Marker> = mutableListOf()
     private fun displayObstacles(obstacles: List<Obstacle>, routePoints: List<List<Double>>) {
         // 기존 장애물 마커 제거
@@ -255,7 +261,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
                     // 장애물 타입에 따라 아이콘 선택
                     val icon = when (obstacle.type) {
                         "slope" -> OverlayImage.fromResource(R.drawable.rudtkfh_new)
-                        "stair_steep" -> OverlayImage.fromResource(R.drawable.stair_new)
+                        "stair_steep" -> OverlayImage.fromResource(R.drawable.baseline_stairs_24)
                         "bollard" -> OverlayImage.fromResource(R.drawable.bollard_new)
                         "crosswalk_curb", "sidewalk_curb" -> OverlayImage.fromResource(R.drawable.baseline_stop_24)
                         else -> OverlayImage.fromResource(R.drawable.ic_marker) // 기본 아이콘
@@ -277,9 +283,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
-
-
     private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val R = 6371e3 // 지구의 반경 (미터)
         val phi1 = Math.toRadians(lat1)
@@ -294,7 +297,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
         return R * c // 두 지점 간의 거리 (미터)
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -327,7 +329,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
 
     // 생명주기 관련 메소드들
     override fun onStart() {
@@ -365,5 +366,38 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onLowMemory() {
         super.onLowMemory()
         mapView.onLowMemory()
+    }
+
+    private fun triggerCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                LOCATION_REQUEST_CODE_START
+            )
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location?.let {
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+                naverMap?.moveCamera(CameraUpdate.scrollTo(currentLatLng))
+                naverMap?.locationOverlay?.run {
+                    isVisible = true
+                    position = currentLatLng
+                    bearing = location.bearing
+                }
+            }
+        }
     }
 }

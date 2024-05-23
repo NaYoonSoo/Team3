@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="추가하고 싶은 장애물의 사진을 촬영해주세요\n(⚠️ 계단, 볼라드, 턱만 가능합니다.)"
+        android:text="추가하고 싶은 장애물의 사진을 촬영해주세요\n(⚠️ 계단, 볼라드, 연석만 가능합니다.)"
         android:textAlignment="center"
         android:textSize="18sp"
         android:textStyle="bold"
