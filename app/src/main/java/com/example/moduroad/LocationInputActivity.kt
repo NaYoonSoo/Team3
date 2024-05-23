@@ -33,6 +33,7 @@ class LocationInputActivity : AppCompatActivity() {
     private lateinit var placeSearchService: PlaceSearchService
     private var destinationLat: Double? = null
     private var destinationLng: Double? = null
+    private var destinationTitle: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +47,7 @@ class LocationInputActivity : AppCompatActivity() {
         // Set up RecyclerView
         resultsRecyclerView.layoutManager = LinearLayoutManager(this)
         adapter = PlacesAdapter { place ->
-            returnPlaceLocation(place.lat, place.lng)
+            returnPlaceLocation(place.lat, place.lng, place.title)
         }
         resultsRecyclerView.adapter = adapter
 
@@ -56,10 +57,11 @@ class LocationInputActivity : AppCompatActivity() {
         // Get destination coordinates from intent
         destinationLat = intent.getDoubleExtra("destination_lat", 0.0)
         destinationLng = intent.getDoubleExtra("destination_lng", 0.0)
+        destinationTitle = intent.getStringExtra("destinationTitle")
 
         if (destinationLat != 0.0 && destinationLng != 0.0) {
             Toast.makeText(this, "Destination set to: $destinationLat, $destinationLng", Toast.LENGTH_SHORT).show()
-            returnPlaceLocation(destinationLat!!, destinationLng!!)
+            returnPlaceLocation(destinationLat!!, destinationLng!!, destinationTitle!!)
         }
 
         // SearchView query text listener
@@ -131,10 +133,12 @@ class LocationInputActivity : AppCompatActivity() {
         }
     }
 
-    private fun returnPlaceLocation(latitude: Double, longitude: Double) {
+    private fun returnPlaceLocation(latitude: Double, longitude: Double, title: String) {
         val locationResult = "${latitude / 10}, ${longitude / 10}"
         val returnIntent = Intent().apply {
             putExtra("location", locationResult)
+            putExtra("title", title)
+
         }
         setResult(Activity.RESULT_OK, returnIntent)
         finish()
@@ -163,3 +167,4 @@ class LocationInputActivity : AppCompatActivity() {
         }
     }
 }
+
