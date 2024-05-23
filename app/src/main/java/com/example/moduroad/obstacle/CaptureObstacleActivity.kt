@@ -14,9 +14,10 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -72,7 +73,6 @@ class CaptureObstacleActivity : AppCompatActivity() {
         registerButton.setOnClickListener {
             if (currentLatitude != null && currentLongitude != null) {
                 Log.d("CaptureActivity", "Register button clicked: Latitude (${currentLatitude}), Longitude (${currentLongitude})")
-                showLoadingOverlay()
                 uploadObstacle(imageUri, currentLatitude!!, currentLongitude!!)
             } else {
                 Toast.makeText(this, "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
@@ -186,7 +186,17 @@ class CaptureObstacleActivity : AppCompatActivity() {
         }
     }
 
+    private fun showLoadingOverlay() {
+        loadingOverlay.visibility = View.VISIBLE
+    }
+
+    private fun hideLoadingOverlay() {
+        loadingOverlay.visibility = View.GONE
+    }
+
     private fun uploadObstacle(imageUri: Uri, latitude: Double, longitude: Double) {
+        showLoadingOverlay()
+
         val file = File(imageUri.path!!)
         val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), file)
         val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
@@ -197,15 +207,22 @@ class CaptureObstacleActivity : AppCompatActivity() {
         Log.d("CaptureActivity", "Making API call to detect obstacle.")
         call.enqueue(object : Callback<ObstacleResponse> {
             override fun onResponse(call: Call<ObstacleResponse>, response: Response<ObstacleResponse>) {
-                Log.d("CaptureActivity", "API call successful: ${response.isSuccessful}")
                 hideLoadingOverlay()
+                Log.d("CaptureActivity", "API call successful: ${response.isSuccessful}")
                 if (response.isSuccessful) {
                     val result = response.body()
                     Log.d("CaptureActivity", "API response body: $result")
                     if (result != null) {
                         if (result.success) {
                             Log.d("CaptureActivity", "Obstacle detected: ${result.obstacles}")
-                            showConfirmationDialog(result.obstacles ?: "장애물", latitude, longitude)
+                            val obstacleName = when (result.obstacles) {
+                                "slope" -> "경사로"
+                                "stair_steep" -> "계단"
+                                "bollard" -> "볼라드"
+                                "crosswalk_curb", "sidewalk_curb" -> "연석"
+                                else -> "장애물"
+                            }
+                            showConfirmationDialog(obstacleName, latitude, longitude)
                         } else {
                             Log.d("CaptureActivity", "Obstacle detection failed.")
                             runOnUiThread {
@@ -227,8 +244,8 @@ class CaptureObstacleActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<ObstacleResponse>, t: Throwable) {
-                Log.e("CaptureActivity", "API call failed", t)
                 hideLoadingOverlay()
+                Log.e("CaptureActivity", "API call failed", t)
                 runOnUiThread {
                     Toast.makeText(this@CaptureObstacleActivity, "네트워크 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
                 }
@@ -237,35 +254,26 @@ class CaptureObstacleActivity : AppCompatActivity() {
     }
 
     private fun showConfirmationDialog(obstacleType: String, latitude: Double, longitude: Double) {
-        val displayType = when (obstacleType) {
-            "slope" -> "경사로"
-            "stair_steep" -> "계단"
-            "bollard" -> "볼라드"
-            "crosswalk_curb", "sidewalk_curb" -> "연석"
-            else -> "장애물"
-        }
-
-        val message = if (obstacleType in listOf("slope", "bollard")) {
-            "${displayType}를 등록하시겠습니까?"
+        val message = if (obstacleType in listOf("경사로", "볼라드")) {
+            "$obstacleType 를 등록하시겠습니까?"
         } else {
-            "${displayType}을 등록하시겠습니까?"
+            "$obstacleType 을 등록하시겠습니까?"
         }
 
         val builder = AlertDialog.Builder(this)
         builder.setMessage(message)
             .setPositiveButton("예") { dialog, id ->
-                // 사용자가 확인한 경우 서버에 등록 요청 보내기
-                showLoadingOverlay()
                 registerObstacle(obstacleType, latitude, longitude)
             }
             .setNegativeButton("아니오") { dialog, id ->
-                // 사용자가 등록을 취소한 경우
                 dialog.dismiss()
             }
         builder.create().show()
     }
 
     private fun registerObstacle(obstacleType: String, latitude: Double, longitude: Double) {
+        showLoadingOverlay()
+
         val obstacleRequest = ObstacleRequest(obstacleType, latitude, longitude)
         val call = ObstacleRetrofitClient.instance.registerObstacle(obstacleRequest)
         call.enqueue(object : Callback<RegisterResponse> {
@@ -275,7 +283,7 @@ class CaptureObstacleActivity : AppCompatActivity() {
                     val result = response.body()
                     if (result != null && result.success) {
                         runOnUiThread {
-                            Toast.makeText(this@CaptureObstacleActivity, "장애물이 등록되었습니다.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@CaptureObstacleActivity, "${obstacleType}이(가) 등록되었습니다.", Toast.LENGTH_LONG).show()
                         }
                     } else {
                         runOnUiThread {
@@ -296,13 +304,5 @@ class CaptureObstacleActivity : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    private fun showLoadingOverlay() {
-        loadingOverlay.visibility = View.VISIBLE
-    }
-
-    private fun hideLoadingOverlay() {
-        loadingOverlay.visibility = View.GONE
     }
 }
