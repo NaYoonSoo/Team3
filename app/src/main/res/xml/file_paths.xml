@@ -2,5 +2,5 @@
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <external-files-path name="my_images" path="Pictures" />
     <!-- 혹은 -->
-    <external-path name="my_images" path="." />
+    <external-path name="my_images" path="Android/data/com.example.moduroad/files/" />
 </paths>

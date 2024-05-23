@@ -13,8 +13,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -72,11 +70,9 @@ class CaptureObstacleActivity : AppCompatActivity() {
 
         registerButton.setOnClickListener {
             if (currentLatitude != null && currentLongitude != null) {
-                Log.d("CaptureActivity", "Register button clicked: Latitude (${currentLatitude}), Longitude (${currentLongitude})")
                 uploadObstacle(imageUri, currentLatitude!!, currentLongitude!!)
             } else {
                 Toast.makeText(this, "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
-                Log.e("CaptureActivity", "Location information is not available.")
             }
         }
 
@@ -178,9 +174,6 @@ class CaptureObstacleActivity : AppCompatActivity() {
                     location?.let {
                         currentLatitude = it.latitude
                         currentLongitude = it.longitude
-                        Log.d("CaptureActivity", "Current location: Latitude (${it.latitude}), Longitude (${it.longitude})")
-                    } ?: run {
-                        Log.e("CaptureActivity", "Failed to get location")
                     }
                 }
         }
@@ -200,64 +193,53 @@ class CaptureObstacleActivity : AppCompatActivity() {
         val file = File(imageUri.path!!)
         val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), file)
         val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-        val latitudePart = RequestBody.create("text/plain".toMediaTypeOrNull(), latitude.toString())
-        val longitudePart = RequestBody.create("text/plain".toMediaTypeOrNull(), longitude.toString())
 
-        val call = ObstacleRetrofitClient.instance.detectObstacle(body, longitudePart, latitudePart)
-        Log.d("CaptureActivity", "Making API call to detect obstacle.")
+        val call = ObstacleRetrofitClient.instance.detectObstacle(body)
         call.enqueue(object : Callback<ObstacleResponse> {
             override fun onResponse(call: Call<ObstacleResponse>, response: Response<ObstacleResponse>) {
                 hideLoadingOverlay()
-                Log.d("CaptureActivity", "API call successful: ${response.isSuccessful}")
                 if (response.isSuccessful) {
                     val result = response.body()
-                    Log.d("CaptureActivity", "API response body: $result")
+                    var success = false
+                    var obstacleType = " "
+
                     if (result != null) {
-                        if (result.success) {
-                            Log.d("CaptureActivity", "Obstacle detected: ${result.obstacles}")
-                            val obstacleName = when (result.obstacles) {
-                                "slope" -> "경사로"
-                                "stair_steep" -> "계단"
-                                "bollard" -> "볼라드"
-                                "crosswalk_curb", "sidewalk_curb" -> "연석"
-                                else -> "장애물"
-                            }
-                            showConfirmationDialog(obstacleName, latitude, longitude)
-                        } else {
-                            Log.d("CaptureActivity", "Obstacle detection failed.")
-                            runOnUiThread {
-                                Toast.makeText(this@CaptureObstacleActivity, "장애물로 인식되지 않았습니다.", Toast.LENGTH_LONG).show()
-                            }
-                        }
+                        success = result.success
+                        obstacleType = result.obstacleType
+                    }
+
+                    if (success) {
+                        showConfirmationDialog(obstacleType, latitude, longitude)
                     } else {
-                        Log.e("CaptureActivity", "API response body is null.")
-                        runOnUiThread {
-                            Toast.makeText(this@CaptureObstacleActivity, "서버 응답이 없습니다.", Toast.LENGTH_LONG).show()
-                        }
+                        Toast.makeText(this@CaptureObstacleActivity, "장애물로 인식되지 않았습니다.", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    Log.e("CaptureActivity", "API call unsuccessful: ${response.errorBody()?.string()}")
-                    runOnUiThread {
-                        Toast.makeText(this@CaptureObstacleActivity, "서버 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
-                    }
+                    Toast.makeText(this@CaptureObstacleActivity, "서버 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<ObstacleResponse>, t: Throwable) {
                 hideLoadingOverlay()
-                Log.e("CaptureActivity", "API call failed", t)
-                runOnUiThread {
-                    Toast.makeText(this@CaptureObstacleActivity, "네트워크 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
-                }
+                val errorMessage = t.message ?: "알 수 없는 오류가 발생했습니다."
+                Toast.makeText(this@CaptureObstacleActivity, "네트워크 오류: $errorMessage", Toast.LENGTH_LONG).show()
+
             }
         })
     }
 
+
     private fun showConfirmationDialog(obstacleType: String, latitude: Double, longitude: Double) {
-        val message = if (obstacleType in listOf("경사로", "볼라드")) {
-            "$obstacleType 를 등록하시겠습니까?"
+        val obstacleName = when (obstacleType) {
+            "slope" -> "경사로"
+            "stair_steep" -> "계단"
+            "bollard" -> "볼라드"
+            "crosswalk_curb" -> "연석"
+            "sidewalk_curb" -> "연석"
+            else -> "장애물"}
+        val message = if (obstacleName in listOf("경사로", "볼라드")) {
+            "$obstacleName 를 등록하시겠습니까?"
         } else {
-            "$obstacleType 을 등록하시겠습니까?"
+            "$obstacleName 을 등록하시겠습니까?"
         }
 
         val builder = AlertDialog.Builder(this)
@@ -275,6 +257,7 @@ class CaptureObstacleActivity : AppCompatActivity() {
         showLoadingOverlay()
 
         val obstacleRequest = ObstacleRequest(obstacleType, latitude, longitude)
+        Log.d("CaptureObstacleActivity", "Obstacle Request: $obstacleRequest")
         val call = ObstacleRetrofitClient.instance.registerObstacle(obstacleRequest)
         call.enqueue(object : Callback<RegisterResponse> {
             override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
@@ -282,26 +265,25 @@ class CaptureObstacleActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val result = response.body()
                     if (result != null && result.success) {
-                        runOnUiThread {
-                            Toast.makeText(this@CaptureObstacleActivity, "${obstacleType}이(가) 등록되었습니다.", Toast.LENGTH_LONG).show()
-                        }
+                        val obstacleName = when (obstacleType) {
+                            "slope" -> "경사로"
+                            "stair_steep" -> "계단"
+                            "bollard" -> "볼라드"
+                            "crosswalk_curb" -> "연석"
+                            "sidewalk_curb" -> "연석"
+                            else -> "장애물"}
+                        Toast.makeText(this@CaptureObstacleActivity, "${obstacleName}이(가) 등록되었습니다.", Toast.LENGTH_LONG).show()
                     } else {
-                        runOnUiThread {
-                            Toast.makeText(this@CaptureObstacleActivity, "장애물 등록에 실패하였습니다.", Toast.LENGTH_LONG).show()
-                        }
+                        Toast.makeText(this@CaptureObstacleActivity, "장애물 등록에 실패하였습니다.", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    runOnUiThread {
-                        Toast.makeText(this@CaptureObstacleActivity, "서버 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
-                    }
+                    Toast.makeText(this@CaptureObstacleActivity, "서버 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
                 hideLoadingOverlay()
-                runOnUiThread {
-                    Toast.makeText(this@CaptureObstacleActivity, "네트워크 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(this@CaptureObstacleActivity, "네트워크 오류가 발생하였습니다.", Toast.LENGTH_LONG).show()
             }
         })
     }
