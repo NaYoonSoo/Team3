@@ -295,6 +295,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         return R * c // 두 지점 간의 거리 (미터)
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && data != null) {

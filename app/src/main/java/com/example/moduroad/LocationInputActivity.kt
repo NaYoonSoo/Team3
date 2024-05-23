@@ -167,3 +167,4 @@ class LocationInputActivity : AppCompatActivity() {
         }
     }
 }
+
