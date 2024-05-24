@@ -1,3 +1,4 @@
+// RouteSearchActivity.kt
 package com.example.moduroad
 
 import android.Manifest
@@ -18,6 +19,8 @@ import com.example.moduroad.model.Obstacle
 import com.example.moduroad.model.PathRequest
 import com.example.moduroad.model.RouteResponse
 import com.example.moduroad.placeAPI.RetrofitClient
+import com.example.moduroad.placeAPI.GeocodingResponse
+import com.example.moduroad.placeAPI.SearchResponse
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
@@ -136,7 +139,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
 
     private fun setupMap() {
         naverMap?.let { map ->
@@ -316,27 +318,72 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (location != null) {
                 val latLng = location.split(",").map { it.trim().toDouble() }
-                val displayText = when {
-                    fromMapSelection || fromCurrentLocation -> location // 지도 선택 또는 현재 위치일 경우 위도, 경도로 표시
-                    else -> title ?: location // 검색 결과일 경우 제목을 표시, 제목이 없으면 위도, 경도로 표시
-                }
                 when (requestCode) {
                     LOCATION_REQUEST_CODE_START -> {
-                        startLocationEditText.setText(displayText)
                         startLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = true)
+                        getReverseGeocoding(latLng[0], latLng[1], isStartLocation = true)
                         checkBothLocationsSet()
                     }
                     LOCATION_REQUEST_CODE_END -> {
-                        endLocationEditText.setText(displayText)
                         endLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = false)
+                        getReverseGeocoding(latLng[0], latLng[1], isStartLocation = false)
                         checkBothLocationsSet()
                     }
                 }
             }
         }
     }
+
+    private fun getReverseGeocoding(lat: Double, lng: Double, isStartLocation: Boolean) {
+        val geocodingService = RetrofitClient.reverseGeocodingInstance
+        val clientId = "watt6cqojf" // 네이버 지도용 클라이언트 ID
+        val clientSecret = "TjYQdEwcyZ12KDaqMTpqrGQHncCxD1jQamICZG0J" // 네이버 지도용 클라이언트 시크릿
+
+        geocodingService.getReverseGeocodingData(clientId, clientSecret, "$lng,$lat", "json", "admcode,legalcode,addr,roadaddr").enqueue(object : Callback<GeocodingResponse> {
+            override fun onResponse(call: Call<GeocodingResponse>, response: Response<GeocodingResponse>) {
+                if (response.isSuccessful) {
+                    val results = response.body()?.results
+                    Log.d("GeocodingResponse", "Response: ${response.body()}")
+
+                    var detailedAddress = ""
+                    results?.forEach { result ->
+                        result.land?.let { land ->
+                            val roadAddress = land.name ?: ""
+                            val fullAddress = "${result.region.area1.name} ${result.region.area2.name} ${result.region.area3.name} ${result.region.area4.name} ${roadAddress} ${land.number1}${if (land.number2.isNotEmpty()) "-${land.number2}" else ""}"
+                            if (roadAddress.isNotEmpty()) {
+                                detailedAddress = fullAddress
+                            }
+                        }
+                    }
+
+                    if (detailedAddress.isEmpty()) {
+                        val region = results?.firstOrNull()?.let { res ->
+                            "${res.region.area1.name} ${res.region.area2.name} ${res.region.area3.name} ${res.region.area4.name}"
+                        } ?: ""
+                        detailedAddress = region
+                    }
+
+                    Log.d("GeocodingResponse", "Detailed Address: $detailedAddress")
+
+                    if (isStartLocation) {
+                        startLocationEditText.setText(detailedAddress)
+                    } else {
+                        endLocationEditText.setText(detailedAddress)
+                    }
+                } else {
+                    Log.e("GeocodingResponse", "Geocoding response not successful: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<GeocodingResponse>, t: Throwable) {
+                Log.e("GeocodingResponse", "Geocoding API call failed", t)
+            }
+        })
+    }
+
+
 
     // 생명주기 관련 메소드들
     override fun onStart() {

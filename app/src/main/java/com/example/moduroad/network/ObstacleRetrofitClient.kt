@@ -23,9 +23,8 @@ interface ObstacleService {
 }
 
 object ObstacleRetrofitClient {
-    private const val BASE_URL = "http://192.168.236.227:5000/"
+    private const val BASE_URL = "http://192.168.236.1:5000/"
     //http://10.0.2.2:5000/"
-    //http://192.168.236.1:5000/
     val instance: ObstacleService by lazy {
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
