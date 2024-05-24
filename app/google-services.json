@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "989688254611",
+    "project_id": "moduroad",
+    "storage_bucket": "moduroad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989688254611:android:410719af92488d057bbd66",
+        "android_client_info": {
+          "package_name": "com.example.moduroad"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV9-E74VocQbDZ5AYRjShs8Lp0asC8adY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

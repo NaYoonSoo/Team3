@@ -8,8 +8,14 @@
 ▪️ 나윤수  
 ▪️ 김수연  
 ▪️ 김하경  
-~~▪️ 이승우~~
 
 ### 개발 환경
+Frontend : Android Studio
+
+Backend : Flask/Firebase
+![image](https://github.com/NaYoonSoo/Team3/assets/124981649/7f54b01d-cb49-4ec5-8093-e9662afe700f)
+  
+### 앱 흐름도
+![image](https://github.com/NaYoonSoo/Team3/assets/124981649/3c8bf5ce-84b5-45ee-a2af-46e869e2b32e)
 
 ### Testcase
