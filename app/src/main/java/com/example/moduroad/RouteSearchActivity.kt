@@ -103,6 +103,10 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             endLocationEditText.setText(destinationTitle)
             moveToLocationAndAddMarker(destinationLat, destinationLng, isStartLocation = false)
             setStartLocationToCurrentLocation()
+
+            // Update endLatLng to trigger route search
+            endLatLng = listOf(destinationLat, destinationLng)
+            checkBothLocationsSet()  // 경로 검색 트리거
         }
 
         // 현재 위치 버튼 활성화 및 초기 위치 설정
@@ -123,12 +127,16 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 startLocationEditText.setText("$currentLat, $currentLng")
                 moveToLocationAndAddMarker(currentLat, currentLng, isStartLocation = true)
-                checkBothLocationsSet()
+
+                // Update startLatLng to trigger route search
+                startLatLng = listOf(currentLat, currentLng)
+                checkBothLocationsSet()  // 경로 검색 트리거
             } ?: run {
                 Toast.makeText(this, "Cannot fetch current location.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     private fun setupMap() {
         naverMap?.let { map ->
@@ -303,25 +311,24 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         if (resultCode == Activity.RESULT_OK && data != null) {
             val location = data.getStringExtra("location")
             val title = data.getStringExtra("title")
+            val fromMapSelection = data.getBooleanExtra("fromMapSelection", false)
+            val fromCurrentLocation = data.getBooleanExtra("fromCurrentLocation", false)
+
             if (location != null) {
                 val latLng = location.split(",").map { it.trim().toDouble() }
+                val displayText = when {
+                    fromMapSelection || fromCurrentLocation -> location // 지도 선택 또는 현재 위치일 경우 위도, 경도로 표시
+                    else -> title ?: location // 검색 결과일 경우 제목을 표시, 제목이 없으면 위도, 경도로 표시
+                }
                 when (requestCode) {
                     LOCATION_REQUEST_CODE_START -> {
-                        if (title.isNullOrEmpty()) {
-                            startLocationEditText.setText("$latLng[0], $latLng[1]")
-                        } else {
-                            startLocationEditText.setText(title)
-                        }
+                        startLocationEditText.setText(displayText)
                         startLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = true)
                         checkBothLocationsSet()
                     }
                     LOCATION_REQUEST_CODE_END -> {
-                        if (title.isNullOrEmpty()) {
-                            endLocationEditText.setText("$latLng[0], $latLng[1]")
-                        } else {
-                            endLocationEditText.setText(title)
-                        }
+                        endLocationEditText.setText(displayText)
                         endLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = false)
                         checkBothLocationsSet()
@@ -330,7 +337,6 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
 
     // 생명주기 관련 메소드들
     override fun onStart() {
