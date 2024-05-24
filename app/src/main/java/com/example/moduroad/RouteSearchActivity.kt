@@ -97,10 +97,10 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         // Get destination coordinates from intent
         val destinationLat = intent.getDoubleExtra("destination_lat", 0.0)
         val destinationLng = intent.getDoubleExtra("destination_lng", 0.0)
-        val destinationTitle = intent.getStringExtra("destinationTitle")
+        val destinationTitle = intent.getStringExtra("destination_title")
 
         if (destinationLat != 0.0 && destinationLng != 0.0) {
-            endLocationEditText.setText("destinationTitle")
+            endLocationEditText.setText(destinationTitle)
             moveToLocationAndAddMarker(destinationLat, destinationLng, isStartLocation = false)
             setStartLocationToCurrentLocation()
         }
@@ -303,24 +303,25 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
         if (resultCode == Activity.RESULT_OK && data != null) {
             val location = data.getStringExtra("location")
             val title = data.getStringExtra("title")
-            val fromMapSelection = data.getBooleanExtra("fromMapSelection", false)
-            val fromCurrentLocation = data.getBooleanExtra("fromCurrentLocation", false)
-
             if (location != null) {
                 val latLng = location.split(",").map { it.trim().toDouble() }
-                val displayText = when {
-                    fromMapSelection || fromCurrentLocation -> location // 지도 선택 또는 현재 위치일 경우 위도, 경도로 표시
-                    else -> title ?: location // 검색 결과일 경우 제목을 표시, 제목이 없으면 위도, 경도로 표시
-                }
                 when (requestCode) {
                     LOCATION_REQUEST_CODE_START -> {
-                        startLocationEditText.setText(displayText)
+                        if (title.isNullOrEmpty()) {
+                            startLocationEditText.setText("$latLng[0], $latLng[1]")
+                        } else {
+                            startLocationEditText.setText(title)
+                        }
                         startLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = true)
                         checkBothLocationsSet()
                     }
                     LOCATION_REQUEST_CODE_END -> {
-                        endLocationEditText.setText(displayText)
+                        if (title.isNullOrEmpty()) {
+                            endLocationEditText.setText("$latLng[0], $latLng[1]")
+                        } else {
+                            endLocationEditText.setText(title)
+                        }
                         endLatLng = latLng
                         moveToLocationAndAddMarker(latLng[0], latLng[1], isStartLocation = false)
                         checkBothLocationsSet()
@@ -329,6 +330,7 @@ class RouteSearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
 
     // 생명주기 관련 메소드들
     override fun onStart() {

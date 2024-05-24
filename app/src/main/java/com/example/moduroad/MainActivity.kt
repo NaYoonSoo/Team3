@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         adapter = PlacesAdapter(mutableListOf()) { place ->
-            showDestinationConfirmationDialog(place.lat, place.lng)
+            showDestinationConfirmationDialog(place.lat, place.lng, place.title)
         }
 
         binding.recyclerView.adapter = adapter
@@ -165,13 +165,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDestinationConfirmationDialog(lat: Double, lng: Double) {
+    private fun showDestinationConfirmationDialog(lat: Double, lng: Double, title: String) {
         AlertDialog.Builder(this).apply {
             setTitle("목적지로 선택하시겠습니까?")
             setPositiveButton("바로 출발") { _, _ ->
                 val intent = Intent(this@MainActivity, RouteSearchActivity::class.java).apply {
                     putExtra("destination_lat", lat/10)
                     putExtra("destination_lng", lng/10)
+                    putExtra("destination_title", title)
                 }
                 startActivity(intent)
             }
